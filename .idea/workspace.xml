@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3cd05789-f30d-4cbc-9de4-43757237ce2b" name="Changes" comment="" />
+    <list default="true" id="d0983ccf-ed5d-49b0-bb61-65c1eafeae9a" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ProjectId" id="27n4aRSQKhkdETmiRLhyxcPsf7o" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="27n5ZV9Eij6KiTzoHxiqIBBIysD" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -16,18 +19,19 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false"
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "/Users/simonrosengren/Documents/GitHub/PROG2"
   }
 }]]></component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="3cd05789-f30d-4cbc-9de4-43757237ce2b" name="Changes" comment="" />
-      <created>1649942582450</created>
+      <changelist id="d0983ccf-ed5d-49b0-bb61-65c1eafeae9a" name="Changes" comment="" />
+      <created>1649943066581</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1649942582450</updated>
-      <workItem from="1649942582455" duration="34000" />
+      <updated>1649943066581</updated>
+      <workItem from="1649943070598" duration="302000" />
     </task>
     <servers />
   </component>
