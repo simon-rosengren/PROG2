@@ -1,0 +1,1 @@
+public record City(String name) {}
