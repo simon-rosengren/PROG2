@@ -1,5 +1,5 @@
 public class Edge {
-    private destination;
+    private City city;
     private int weight;
     private String name;
 
@@ -8,8 +8,8 @@ public class Edge {
 
     }
 
-    public Node getDestination(){
-        return destination;
+    public City getDestination(){
+        return city;
     }
 
     public double getWeight(){

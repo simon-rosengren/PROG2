@@ -1,12 +1,11 @@
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 public class ListGraph {
-    public void add (Node node){
+    public void add (City city){
 
     }
 
-    public void remove(Node node){
+    public void remove(City node){
 
     }
 
@@ -14,11 +13,11 @@ public class ListGraph {
 
     }
 
-    public void disconnect(Node node_1, Node node_2){
+    public void disconnect(City city1, City city2){
 
     }
 
-    public void setConnectionWeight(Node node_1, Node node_2, int weight){
+    public void setConnectionWeight(City city1, City city2, int weight){
 
     }
 
@@ -30,15 +29,15 @@ public class ListGraph {
 
     }
 
-    public Edge getEdgeBetween(Node node_1, Node node_2){
+    public Edge getEdgeBetween(City city1, City city2){
 
     }
 
-    public bool pathExists(Node node_1, Node node_2){
+    public boolean pathExists(City city1, City city2){
 
     }
 
-    public ArrayList<> getPath(Node node_1, Node node_2){
+    public List<Edge> getPath(City city1, City city2){
 
     }
 
