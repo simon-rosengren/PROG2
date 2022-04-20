@@ -3,12 +3,13 @@ public class Edge {
     private int weight;
     private String name;
 
-    public Edge{
-        this.destination = destination;
-
+    public Edge(City city, int weight, String name){
+        this.city = city;
+        this.weight = weight;
+        this.name = name;
     }
 
-    public City getDestination(){
+    public City getCity(){
         return city;
     }
 
@@ -21,7 +22,7 @@ public class Edge {
     }
 
     public void setWeight (int newWeight){
-
+        this.weight = newWeight;
     }
 
     public String toString(){
