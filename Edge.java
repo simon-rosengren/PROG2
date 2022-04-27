@@ -1,19 +1,21 @@
-public class Edge {
-    private City city;
+import java.io.Serializable;
+
+public class Edge<T> implements Serializable {
+    private T destination;
     private int weight;
     private String name;
 
-    public Edge(City city, int weight, String name){
-        this.city = city;
+    public Edge(T city, int weight, String name){
+        this.destination = city;
         this.weight = weight;
         this.name = name;
     }
 
-    public City getCity(){
-        return city;
+    public T getDestination(){
+        return destination;
     }
 
-    public double getWeight(){
+    public int getWeight(){
         return weight;
     }
 
@@ -26,6 +28,6 @@ public class Edge {
     }
 
     public String toString(){
-
+        return destination + " " + weight + " " + name;
     }
 }
