@@ -30,11 +30,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "node.js.selected.package.tslint": "(autodetect)"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\idaam\Pictures\Programmering 2 (PROG2)\PROG2\PROG2" />
@@ -56,12 +59,13 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="9261542b-bc5f-4a02-8344-4a1af9c4afb1" name="Default Changelist" comment="" />
+      <changelist id="cb466061-47ff-46c2-aa34-15be9bbba21a" name="Changes" comment="" />
       <created>1649942860544</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1649942860544</updated>
       <workItem from="1649942863649" duration="979000" />
+      <workItem from="1651062966111" duration="19000" />
     </task>
     <servers />
   </component>
