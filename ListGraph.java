@@ -26,10 +26,8 @@ public class ListGraph<T> implements Graph<T>, Serializable {
 
         /*
         for(Set <Edge<T>> edge: nodes.values()){
-            Iterator<Edge<T>> it = edge.iterator();
-            while (it.hasNext()) {
-                System.out.print(it.next() + " ");
-            }
+            Gå igenom alla cities sets med edges och hitta city
+            Ta bort alla städer som har city i sitt set av edges
         }
         */
 
