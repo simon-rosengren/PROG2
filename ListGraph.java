@@ -24,10 +24,18 @@ public class ListGraph<T> implements Graph<T>, Serializable {
         }
         nodes.remove(city);
 
+        /*
+        for(Set <Edge<T>> edge: nodes.values()){
+            Iterator<Edge<T>> it = edge.iterator();
+            while (it.hasNext()) {
+                System.out.print(it.next() + " ");
+            }
+        }
+        */
+
         //när man tar bort en nyckel så tas dess värden bort, men vi måste
         //ta bort kanterna från de andra noderna som leder till den
         //cityn som vi ska ta bort
-
     }
 
     //– tar två noder, en sträng (namnet på förbindelsen) och ett heltal
@@ -121,6 +129,9 @@ public class ListGraph<T> implements Graph<T>, Serializable {
     //kanter som leder från denna nod. Om noden saknas i grafen ska undantaget
     //NoSuchElementException genereras
     public Set<Edge<T>> getEdgesFrom(T city){
+        if (!nodes.containsKey(city)){
+            throw new NoSuchElementException("City missing in graph!");
+        }
         return Set.copyOf(nodes.get(city));
     }
 
@@ -152,6 +163,9 @@ public class ListGraph<T> implements Graph<T>, Serializable {
     }
 
     private void depthFirstVisitAll(T current, Set<T> visited) {
+        if (!nodes.containsKey(current)){
+            return;
+        }
         visited.add(current);
         for (Edge<T> edge : nodes.get(current)) {
             if (!visited.contains(edge.getDestination())) {
@@ -171,7 +185,7 @@ public class ListGraph<T> implements Graph<T>, Serializable {
         Map<T, T> connection = new HashMap<>();
         depthFirstConnection(a, null, connection);
         if (!connection.containsKey(b)) {
-            return Collections.emptyList();
+            return null;
         }
         return gatherPath(a, b, connection);
     }

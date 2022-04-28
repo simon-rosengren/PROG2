@@ -28,6 +28,6 @@ public class Edge<T> implements Serializable {
     }
 
     public String toString(){
-        return destination + " " + weight + " " + name;
+        return "till " + destination + " med " + name + " tar " + weight;
     }
 }
