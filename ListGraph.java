@@ -15,31 +15,32 @@ public class ListGraph<T> implements Graph<T>, Serializable {
     }
 
     //tar emot en nod och tar bort den från grafen. Om noden saknas i
-    //grafen ska undantaget NoSuchElementException från paketet java.util
-    //genereras. När en nod tas bort ska även dess kanter tas bort, och eftersom
-    //grafen är oriktad ska kanterna även tas bort från de andra noderna.
+    //grafen ska undantaget NoSuchElementException. När en nod tas bort
+    //ska även dess kanter tas bort, och eftersom grafen är oriktad
+    // ska kanterna även tas bort från de andra noderna.
     public void remove(T city){
         if(!nodes.containsKey(city)){
             throw new NoSuchElementException();
         }
-        nodes.remove(city);
 
-        /*
-        for(Set <Edge<T>> edge: nodes.values()){
-            Gå igenom alla cities sets med edges och hitta city
-            Ta bort alla städer som har city i sitt set av edges
+        Set <T> cities = new HashSet<>();
+
+        for(Edge<T> edge: nodes.get(city)){
+            T cityWithEdge = edge.getDestination();
+            cities.add(cityWithEdge);
         }
-        */
 
-        //när man tar bort en nyckel så tas dess värden bort, men vi måste
-        //ta bort kanterna från de andra noderna som leder till den
-        //cityn som vi ska ta bort
+        for(T cityToDisconnect: cities){
+            disconnect(cityToDisconnect, city);
+        }
+
+        nodes.remove(city);
     }
 
     //– tar två noder, en sträng (namnet på förbindelsen) och ett heltal
     //(förbindelsens vikt) och kopplar ihop dessa noder med kanter med detta
     //namn och denna vikt. Om någon av noderna saknas i grafen ska undantaget
-    //NoSuchElementException från paketet java.util genereras. Om vikten är
+    //NoSuchElementException. Om vikten är
     //negativ ska undantaget IllegalArgumentException genereras. Om en kant
     //redan finns mellan dessa två noder ska undantaget IllegalStateException
     //genereras (det ska finnas högst en förbindelse mellan två noder).
@@ -47,8 +48,8 @@ public class ListGraph<T> implements Graph<T>, Serializable {
     //två kanter: kanter riktade mot den andra noden måste stoppas in hos de
     //båda noderna. I en oriktad graf förekommer ju alltid kanter i par: från nod 1 till
     //nod 2 och tvärtom.
-    public void connect(T a, T b, String name, int weight){
-        if (!nodes.containsKey(a) || !nodes.containsKey(b)){
+    public void connect(T cityA, T cityB, String name, int weight){
+        if (!nodes.containsKey(cityA) || !nodes.containsKey(cityB)){
             throw new NoSuchElementException("City missing in graph!");
         }
 
@@ -56,15 +57,15 @@ public class ListGraph<T> implements Graph<T>, Serializable {
             throw new IllegalArgumentException();
         }
 
-        Set<Edge<T>> aEdges = nodes.get(a);
-        Set<Edge<T>> bEdges = nodes.get(b);
+        Set<Edge<T>> cityAEdges = nodes.get(cityA);
+        Set<Edge<T>> cityBEdges = nodes.get(cityB);
 
-        if(getEdgeBetween(a, b) != null){
+        if(getEdgeBetween(cityA, cityB) != null){
             throw new IllegalStateException();
         }
 
-        aEdges.add(new Edge<T>(b, weight, name));
-        bEdges.add(new Edge<T>(a, weight, name));
+        cityAEdges.add(new Edge<T>(cityB, weight, name));
+        cityBEdges.add(new Edge<T>(cityA, weight, name));
     }
 
     //– tar två noder och tar bort kanten som kopplar ihop dessa
@@ -75,21 +76,20 @@ public class ListGraph<T> implements Graph<T>, Serializable {
     //getEdgeBetween vara till nytta.)
     //Observera att eftersom grafen är oriktad, d.v.s. en förbindelse representeras
     //av två kanter så måste kanten tas bort från båda noderna.
-    public void disconnect(T a, T b){
-        if (!nodes.containsKey(a) || !nodes.containsKey(b)){
+    public void disconnect(T cityA, T cityB){
+        if (!nodes.containsKey(cityA) || !nodes.containsKey(cityB)){
             throw new NoSuchElementException("City missing in graph!");
         }
 
-        Edge<T> edgeToRemove = getEdgeBetween(a, b);
-        Edge<T> edgeToRemove2 = getEdgeBetween(b, a);
+        Edge<T> edgeToRemoveAtoB = getEdgeBetween(cityA, cityB);
+        Edge<T> edgeToRemoveBtoA = getEdgeBetween(cityB, cityA);
 
-        if(edgeToRemove == null){
+        if(edgeToRemoveAtoB == null){
             throw new IllegalStateException("Edge does not exist!");
         }
 
-        nodes.get(a).remove(edgeToRemove);
-        nodes.get(b).remove(edgeToRemove2);
-
+        nodes.get(cityA).remove(edgeToRemoveAtoB);
+        nodes.get(cityB).remove(edgeToRemoveBtoA);
     }
 
     //tar två noder och ett heltal (förbindelsens nya vikt)
@@ -98,15 +98,15 @@ public class ListGraph<T> implements Graph<T>, Serializable {
     //dessa två noder ska undantaget NoSuchElementException från paketet
     //java.util genereras. Om vikten är negativ ska undantaget
     //IllegalArgumentException genereras.
-    public void setConnectionWeight(T a, T b, int weight){
-        Edge<T> edgeBetween = getEdgeBetween(a, b);
-        Edge<T> edgeBetween2 = getEdgeBetween(b, a);
+    public void setConnectionWeight(T cityA, T cityB, int weight){
+        Edge<T> edgeToRemoveAtoB = getEdgeBetween(cityA, cityB);
+        Edge<T> edgeToRemoveBtoA = getEdgeBetween(cityB, cityA);
 
-        if(!nodes.containsKey(a) || !nodes.containsKey(b)){
+        if(!nodes.containsKey(cityA) || !nodes.containsKey(cityB)){
             throw new NoSuchElementException("City does not exist!");
         }
 
-        if(edgeBetween == null){
+        if(edgeToRemoveAtoB == null){
             throw new NoSuchElementException("Edge does not exist!");
         }
 
@@ -114,8 +114,8 @@ public class ListGraph<T> implements Graph<T>, Serializable {
             throw new IllegalArgumentException("Weight cannot be negative!");
         }
 
-        edgeBetween.setWeight(weight);
-        edgeBetween2.setWeight(weight);
+        edgeToRemoveAtoB.setWeight(weight);
+        edgeToRemoveBtoA.setWeight(weight);
     }
 
     //returnerar en kopia av mängden av alla noder
@@ -137,13 +137,13 @@ public class ListGraph<T> implements Graph<T>, Serializable {
     //Om någon av noderna saknas i grafen ska undantaget
     //NoSuchElementException genereras. Om det inte finns någon kant mellan
     //noderna returneras null.
-    public Edge<T> getEdgeBetween(T next, T current){
-        if (!nodes.containsKey(next) || !nodes.containsKey(current)){
+    public Edge<T> getEdgeBetween(T nextCity, T currentCity){
+        if (!nodes.containsKey(nextCity) || !nodes.containsKey(currentCity)){
             throw new NoSuchElementException("City missing in graph!");
         }
 
-        for (Edge<T> edge : nodes.get(next)) {
-            if (edge.getDestination().equals(current)) {
+        for (Edge<T> edge : nodes.get(nextCity)) {
+            if (edge.getDestination().equals(currentCity)) {
                 return edge;
             }
         }
@@ -154,20 +154,20 @@ public class ListGraph<T> implements Graph<T>, Serializable {
     //grafen från den ena noden till den andra (eventuellt över många andra
     //noder), annars returneras false. Om någon av noderna inte finns i grafen
     //returneras också false. Använder sig av en hjälpmetod för djupet-förstsökning genom en graf.
-    public boolean pathExists(T a, T b){
+    public boolean pathExists(T cityA, T cityB){
         Set<T> visited = new HashSet<>();
-        depthFirstVisitAll(a, visited);
-        return visited.contains(b);
+        depthFirstVisitAll(cityA, visited);
+        return visited.contains(cityB);
     }
 
-    private void depthFirstVisitAll(T current, Set<T> visited) {
-        if (!nodes.containsKey(current)){
+    private void depthFirstVisitAll(T currentCity, Set<T> visitedCities) {
+        if (!nodes.containsKey(currentCity)){
             return;
         }
-        visited.add(current);
-        for (Edge<T> edge : nodes.get(current)) {
-            if (!visited.contains(edge.getDestination())) {
-                depthFirstVisitAll(edge.getDestination(), visited);
+        visitedCities.add(currentCity);
+        for (Edge<T> edge : nodes.get(currentCity)) {
+            if (!visitedCities.contains(edge.getDestination())) {
+                depthFirstVisitAll(edge.getDestination(), visitedCities);
             }
         }
     }
@@ -179,28 +179,28 @@ public class ListGraph<T> implements Graph<T>, Serializable {
     //men frivilligt kan man göra en lösning där returnerar den kortaste vägen (i
     //antalet kanter som måste passeras) eller den snabbaste vägen (med hänsyn
     //tagen till kanternas vikter).
-    public List<Edge<T>> getPath(T a, T b){
+    public List<Edge<T>> getPath(T cityA, T cityB){
         Map<T, T> connection = new HashMap<>();
-        depthFirstConnection(a, null, connection);
-        if (!connection.containsKey(b)) {
+        depthFirstConnection(cityA, null, connection);
+        if (!connection.containsKey(cityB)) {
             return null;
         }
-        return gatherPath(a, b, connection);
+        return gatherPath(cityA, cityB, connection);
     }
 
-    private void depthFirstConnection(T to, T from, Map<T, T> connection) {
-        connection.put(to, from);
-        for (Edge<T> edge : nodes.get(to)) {
+    private void depthFirstConnection(T toCity, T fromCity, Map<T, T> connection) {
+        connection.put(toCity, fromCity);
+        for (Edge<T> edge : nodes.get(toCity)) {
             if (!connection.containsKey(edge.getDestination())) {
-                depthFirstConnection(edge.getDestination(), to, connection);
+                depthFirstConnection(edge.getDestination(), toCity, connection);
             }
         }
     }
 
-    private List<Edge<T>> gatherPath(T from, T to, Map<T, T> connection) {
+    private List<Edge<T>> gatherPath(T fromCity, T toCity, Map<T, T> connection) {
         LinkedList<Edge<T>> path = new LinkedList<>();
-        T current = to;
-        while (!current.equals(from)) {
+        T current = toCity;
+        while (!current.equals(fromCity)) {
             T next = connection.get(current);
             Edge<T> edge = getEdgeBetween(next, current);
             path.addFirst(edge);
