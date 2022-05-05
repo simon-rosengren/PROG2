@@ -1,4 +1,6 @@
 import javafx.application.Application;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -13,7 +15,7 @@ public class PathFinder extends Application{
 
         Label labelTitle = new Label("File");
 
-        FlowPane flowPaneCenter = new FlowPane();
+        FlowPane flowPaneCenter = new FlowPane(Orientation.HORIZONTAL);
 
         Button findPath = new Button("Find Path");
         Button showConnection = new Button("Show Connection");
@@ -26,8 +28,10 @@ public class PathFinder extends Application{
         root.getChildren().add(labelTitle);
         root.getChildren().add(flowPaneCenter);
 
+        /*
         root.setTop(labelTitle);
         root.setCenter(flowPaneCenter);
+        */
 
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
