@@ -4,7 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cb466061-47ff-46c2-aa34-15be9bbba21a" name="Changes" comment="" />
+    <list default="true" id="cb466061-47ff-46c2-aa34-15be9bbba21a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/lib.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/PathFinder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/PROG2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/PROG2.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Edge.java" beforeDir="false" afterPath="$PROJECT_DIR$/Edge.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ListGraph.java" beforeDir="false" afterPath="$PROJECT_DIR$/ListGraph.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/PROG2/.idea/PROG2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/.idea/PROG2.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/PROG2/Edge.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/Edge.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/PROG2/ListGraph.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/ListGraph.class" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -30,22 +41,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "C:/Users/idaam/Pictures/Programmering 2 (PROG2)/openjfx-18.0.1_windows-x64_bin-sdk/javafx-sdk-18.0.1/lib",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "project.structure.last.edited": "Libraries",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\idaam\Pictures\Programmering 2 (PROG2)\PROG2\PROG2" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.PathFinder">
     <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
       <option name="arquillianRunConfiguration">
         <value>
@@ -53,6 +69,22 @@
         </value>
       </option>
       <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PathFinder" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="PathFinder" />
+      <module name="PROG2" />
+      <option name="VM_PARAMETERS" value="--module-path &quot;C:\Users\idaam\Pictures\Programmering 2 (PROG2)\openjfx-18.0.1_windows-x64_bin-sdk\javafx-sdk-18.0.1\lib&quot; --add-modules=javafx.controls,javafx.fxml  " />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Testing" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Testing" />
+      <module name="PROG2" />
+      <option name="VM_PARAMETERS" value="--module-path &quot;C:\Users\idaam\Pictures\Programmering 2 (PROG2)\openjfx-18.0.1_windows-x64_bin-sdk\javafx-sdk-18.0.1\lib&quot; --add-modules=javafx.controls,javafx.fxml  " />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -68,6 +100,8 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.PathFinder" />
+        <item itemvalue="Application.Testing" />
         <item itemvalue="JUnit.GraphTest" />
       </list>
     </recent_temporary>
@@ -90,6 +124,7 @@
       <workItem from="1651499972598" duration="41000" />
       <workItem from="1651662992341" duration="5675000" />
       <workItem from="1651671216139" duration="340000" />
+      <workItem from="1651754090171" duration="4603000" />
     </task>
     <servers />
   </component>

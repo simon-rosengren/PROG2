@@ -25,6 +25,9 @@ public class Edge<T> implements Serializable {
 
     public void setWeight (int newWeight){
         this.weight = newWeight;
+        if (newWeight < 0){
+            throw new IllegalArgumentException("Weight cannot be negative!");
+        }
     }
 
     public String toString(){

@@ -9,7 +9,6 @@ public class ListGraph<T> implements Graph<T>, Serializable {
     //grafen blir det ingen förändring.
     public void add (T city){
         if(nodes.containsKey(city)){
-            //Varför kastar vi exception här?
             throw new NoSuchElementException("City already exists.");
         }
         nodes.put(city, new HashSet<>());
