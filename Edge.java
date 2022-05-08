@@ -1,3 +1,9 @@
+// PROG2 VT2022, Inlämningsuppgift, del 1
+// Grupp 017
+// Ida Amneryd idam7056
+// Simon Rosengren siro
+// Malin Andersson maan
+
 import java.io.Serializable;
 
 public class Edge<T> implements Serializable {
