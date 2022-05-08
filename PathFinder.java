@@ -21,6 +21,7 @@ public class PathFinder extends Application{
     @Override
     public void start (Stage primaryStage){
         this.primaryStage = primaryStage;
+        primaryStage.setTitle("PathFinder");
 
         setFileBar();
         setFlowPane();
@@ -29,7 +30,7 @@ public class PathFinder extends Application{
         center.getChildren().add(imageView);
         root.setCenter(center);
 
-        Scene scene = new Scene(new VBox(file, root), 1200, 900);
+        Scene scene = new Scene(new VBox(file, root), 1000, 500);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
