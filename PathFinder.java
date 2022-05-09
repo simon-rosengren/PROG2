@@ -203,8 +203,6 @@ public class PathFinder extends Application {
         }
     }
 
-    //”Save Image” ska spara en ögonblicksbild av fönstrets innehåll på en fil med
-    //namnet ”capture.png” på PNG-formatet. Filen ska läggas på toppnivå i projektmappen
     class SaveImgHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
