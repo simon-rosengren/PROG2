@@ -5,30 +5,41 @@
 // Malin Andersson maan8354
 
 import javafx.application.Application;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
+import javax.imageio.ImageIO;
+import java.io.*;
+import java.util.Map;
 import java.util.Optional;
 
-import static javafx.scene.input.KeyCode.T;
-
-public class PathFinder extends Application{
+public class PathFinder extends Application {
     private Stage primaryStage;
     private BorderPane root = new BorderPane();
     private VBox file = new VBox();
@@ -36,6 +47,13 @@ public class PathFinder extends Application{
     private ImageView newMapImgView;
     private Image newMapImg;
     private boolean changed = false;
+    private Map<String, String> entries = null;
+
+    private Button findPath;
+    private Button showConnection;
+    private Button newPlace;
+    private Button newConnection;
+    private Button changeConnection;
 
     @Override
     public void start (Stage primaryStage){
@@ -68,20 +86,36 @@ public class PathFinder extends Application{
         newMap.setOnAction(new NewMapHandler());
 
         MenuItem open = new MenuItem("Open");
-        MenuItem save = new MenuItem("Save");
-        MenuItem saveImage = new MenuItem("Save Image");
-        MenuItem exit = new MenuItem("Exit");
+        open.setOnAction(new OpenHandler());
 
-        fileMenu.getItems().addAll(newMap, open, save, saveImage, exit);
+        MenuItem save = new MenuItem("Save");
+        save.setOnAction(new SaveHandler());
+
+        MenuItem saveImg = new MenuItem("Save Image");
+        saveImg.setOnAction(new SaveImgHandler());
+
+        MenuItem exit = new MenuItem("Exit");
         exit.setOnAction(new ExitItemHandler());
+
+        fileMenu.getItems().addAll(newMap, open, save, saveImg, exit);
     }
 
     public void setFlowPane(){
-        Button findPath = new Button("Find Path");
-        Button showConnection = new Button("Show Connection");
-        Button newPlace = new Button("New Place");
-        Button newConnection = new Button("New Connection");
-        Button changeConnection = new Button("Change Connection");
+        findPath = new Button("Find Path");
+        findPath.setDisable(true);
+
+        showConnection = new Button("Show Connection");
+        showConnection.setDisable(true);
+
+        newPlace = new Button("New Place");
+        newPlace.setDisable(true);
+        newPlace.setOnAction(new NewPlaceHandler());
+
+        newConnection = new Button("New Connection");
+        newConnection.setDisable(true);
+
+        changeConnection = new Button("Change Connection");
+        changeConnection.setDisable(true);
 
         FlowPane top = new FlowPane();
         top.setAlignment(Pos.CENTER);
@@ -91,17 +125,34 @@ public class PathFinder extends Application{
         top.getChildren().addAll(findPath, showConnection, newPlace, newConnection, changeConnection);
     }
 
-    /*
+    private void open(){
+        try {
+            FileInputStream inStream = new FileInputStream("europa.graph");
+            ObjectInputStream in = new ObjectInputStream(inStream);
+            entries = (Map) in.readObject();
+            in.close();
+            inStream.close();
+            changed = false;
+        } catch (FileNotFoundException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Can't open file!");
+            alert.showAndWait();
+        } catch (IOException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "IO-error " + e.getMessage());
+            alert.showAndWait();
+        } catch (ClassNotFoundException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Can't find class " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
     private void save(){
         try{
-            FileWriter writer = new FileWriter("europa.txt");
-            PrintWriter out = new PrintWriter(writer);
-
-            for(T city : ListGraph<T> listGraph){
-                out.println(p.getPnr() + ";" + p.getName() + ";" + p.getWeight() + ";" + p.getProfession());
-                out.close();
-                writer.close();
-            }
+            FileOutputStream outStream = new FileOutputStream("europa.graph");
+            ObjectOutputStream out = new ObjectOutputStream(outStream);
+            out.writeObject(entries);
+            out.close();
+            outStream.close();
+            changed = false;
         }   catch(FileNotFoundException exception){
             Alert alert = new Alert(Alert.AlertType.ERROR, "Kan inte öppna filen!");
             alert.showAndWait();
@@ -110,17 +161,61 @@ public class PathFinder extends Application{
             alert.showAndWait();
         }
     }
-    */
 
-    //Tar fram kartan när man klickar på New Map i filebaren
-    //Och justerar fönstret så hela kartan syns
-    //Den här kan vi utgå från med alla knappar i filebaren
     class NewMapHandler implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
             center.getChildren().add(newMapImgView);
             primaryStage.setHeight(newMapImg.getHeight());
             primaryStage.setWidth(newMapImg.getWidth());
+            findPath.setDisable(false);
+            showConnection.setDisable(false);
+            newPlace.setDisable(false);
+            newConnection.setDisable(false);
+            changeConnection.setDisable(false);
+        }
+    }
+
+    class OpenHandler implements EventHandler<ActionEvent>{
+        @Override
+        public void handle(ActionEvent event){
+            if (changed){
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setContentText("Unsaved changes, open anyway?");
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent() && !result.get().equals(ButtonType.OK))
+                    return;
+            }
+
+            if (file == null){
+                return;
+            }
+            open();
+        }
+    }
+
+    class SaveHandler implements EventHandler<ActionEvent> {
+        @Override
+        public void handle(ActionEvent event) {
+            if (file == null)
+                return;
+            save();
+        }
+    }
+
+    //”Save Image” ska spara en ögonblicksbild av fönstrets innehåll på en fil med
+    //namnet ”capture.png” på PNG-formatet. Filen ska läggas på toppnivå i projektmappen
+    class SaveImgHandler implements EventHandler<ActionEvent>{
+        @Override
+        public void handle(ActionEvent event){
+            WritableImage image = center.snapshot(new SnapshotParameters(), null);
+            File file = new File("capture.png");
+            try {
+                ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+            } catch (IOException exception) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "IO_fel_ " + exception.getMessage());
+                alert.showAndWait();
+            }
         }
     }
 
@@ -135,14 +230,57 @@ public class PathFinder extends Application{
                 if (result.isPresent() && result.get() != ButtonType.OK) {
                     event.consume();
                 }
-
             }
         }
     }
 
     class ExitItemHandler implements EventHandler<ActionEvent>{
-        @Override public void handle(ActionEvent event){
+        @Override
+        public void handle(ActionEvent event){
             primaryStage.fireEvent(new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST));
+        }
+    }
+
+    class NewPlaceHandler implements EventHandler<ActionEvent>{
+        @Override
+        public void handle(ActionEvent event){
+            newMapImgView.setCursor(Cursor.CROSSHAIR);
+            newPlace.setDisable(true);
+            newMapImgView.setOnMouseClicked(new NewPlaceClickHandler());
+        }
+    }
+
+    //INTE klar, detta gjorde Ida och Simon idag måndag
+    //Nu kan man klicka ut en prick på kartan
+    //Men namnet som användaren skriver in i dialogrutan dyker inte upp på kartan
+    class NewPlaceClickHandler implements EventHandler<MouseEvent>{
+        @Override
+        public void handle(MouseEvent event){
+            double x = event.getX();
+            double y = event.getY();
+            Canvas canvas = new Canvas(newMapImg.getHeight(), newMapImg.getWidth());
+
+            TextInputDialog nameOfPlace = new TextInputDialog();
+            nameOfPlace.setTitle("Name");
+            nameOfPlace.setHeaderText("Name of place:");
+            nameOfPlace.showAndWait();
+
+            String place = nameOfPlace.getContentText();
+
+            newMapImgView.setCursor(Cursor.DEFAULT);
+            newPlace.setDisable(false);
+
+            GraphicsContext gc = canvas.getGraphicsContext2D();
+
+            //Text text = new Text(x, y, place);
+            //Font font = new Font("Arial", 100);
+            //text.setFont(font);
+            //text.setFill(Color.BLACK);
+            gc.strokeText(place, x, y - 50);
+            gc.setFill(Color.BLUE);
+            gc.fillOval(x, y, 20, 20);
+
+            root.getChildren().addAll(canvas);
         }
     }
 
