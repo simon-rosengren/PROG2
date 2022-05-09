@@ -168,6 +168,7 @@ public class PathFinder extends Application {
             center.getChildren().add(newMapImgView);
             primaryStage.setHeight(newMapImg.getHeight());
             primaryStage.setWidth(newMapImg.getWidth());
+
             findPath.setDisable(false);
             showConnection.setDisable(false);
             newPlace.setDisable(false);
@@ -248,9 +249,6 @@ public class PathFinder extends Application {
         }
     }
 
-    //INTE klar, detta gjorde Ida och Simon idag måndag
-    //Nu kan man klicka ut en prick på kartan
-    //Men namnet som användaren skriver in i dialogrutan dyker inte upp på kartan
     class NewPlaceClickHandler implements EventHandler<MouseEvent>{
         @Override
         public void handle(MouseEvent event){
@@ -263,18 +261,15 @@ public class PathFinder extends Application {
             nameOfPlace.setHeaderText("Name of place:");
             nameOfPlace.showAndWait();
 
-            String place = nameOfPlace.getContentText();
+            TextField textFieldPlace = nameOfPlace.getEditor();
+            String place = textFieldPlace.getText();
 
             newMapImgView.setCursor(Cursor.DEFAULT);
             newPlace.setDisable(false);
 
             GraphicsContext gc = canvas.getGraphicsContext2D();
 
-            //Text text = new Text(x, y, place);
-            //Font font = new Font("Arial", 100);
-            //text.setFont(font);
-            //text.setFill(Color.BLACK);
-            gc.strokeText(place, x, y - 50);
+            gc.strokeText(place, x + 16, y + 28);
             gc.setFill(Color.BLUE);
             gc.fillOval(x, y, 20, 20);
 
