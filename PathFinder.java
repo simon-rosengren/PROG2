@@ -1,8 +1,8 @@
 // PROG2 VT2022, Inlämningsuppgift, del 2
 // Grupp 017
 // Ida Amneryd idam7056
-// Simon Rosengren siro
-// Malin Andersson maan
+// Simon Rosengren siro6690
+// Malin Andersson maan8354
 
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -18,15 +18,24 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.util.Optional;
+
+import static javafx.scene.input.KeyCode.T;
 
 public class PathFinder extends Application{
     private Stage primaryStage;
-    //Den föreslog final för root? Ska vi ha det?
-    private final BorderPane root = new BorderPane();
+    private BorderPane root = new BorderPane();
     private VBox file = new VBox();
     private Pane center = new Pane();
     private ImageView newMapImgView;
     private Image newMapImg;
+    private boolean changed = false;
 
     @Override
     public void start (Stage primaryStage){
@@ -45,6 +54,7 @@ public class PathFinder extends Application{
         Scene scene = new Scene(new VBox(file, root), 1000, 500);
         primaryStage.setScene(scene);
         primaryStage.show();
+        primaryStage.setOnCloseRequest(new ExitHandler());
     }
 
     public void setFileBar(){
@@ -63,6 +73,7 @@ public class PathFinder extends Application{
         MenuItem exit = new MenuItem("Exit");
 
         fileMenu.getItems().addAll(newMap, open, save, saveImage, exit);
+        exit.setOnAction(new ExitItemHandler());
     }
 
     public void setFlowPane(){
@@ -73,17 +84,33 @@ public class PathFinder extends Application{
         Button changeConnection = new Button("Change Connection");
 
         FlowPane top = new FlowPane();
-        //ta bort Vbox? Den gör inget nu verkar det som
-        VBox topVBox = new VBox();
-        //ta bort Vbox?
-        topVBox.setSpacing(5);
         top.setAlignment(Pos.CENTER);
         top.setPadding(new Insets(5));
         top.setHgap(5);
         root.setTop(top);
-        //ta bort Vbox?
-        top.getChildren().addAll(findPath, topVBox, showConnection, newPlace, newConnection, changeConnection);
+        top.getChildren().addAll(findPath, showConnection, newPlace, newConnection, changeConnection);
     }
+
+    /*
+    private void save(){
+        try{
+            FileWriter writer = new FileWriter("europa.txt");
+            PrintWriter out = new PrintWriter(writer);
+
+            for(T city : ListGraph<T> listGraph){
+                out.println(p.getPnr() + ";" + p.getName() + ";" + p.getWeight() + ";" + p.getProfession());
+                out.close();
+                writer.close();
+            }
+        }   catch(FileNotFoundException exception){
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Kan inte öppna filen!");
+            alert.showAndWait();
+        }   catch(IOException exception) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "IO_fel_ " + exception.getMessage());
+            alert.showAndWait();
+        }
+    }
+    */
 
     //Tar fram kartan när man klickar på New Map i filebaren
     //Och justerar fönstret så hela kartan syns
@@ -94,6 +121,28 @@ public class PathFinder extends Application{
             center.getChildren().add(newMapImgView);
             primaryStage.setHeight(newMapImg.getHeight());
             primaryStage.setWidth(newMapImg.getWidth());
+        }
+    }
+
+    class ExitHandler implements EventHandler<WindowEvent> {
+        @Override public void handle(WindowEvent event) {
+            if (changed) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Warning!");
+                alert.setHeaderText("Unsaved changes, exit anyway?");
+                alert.setContentText(null);
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent() && result.get() != ButtonType.OK) {
+                    event.consume();
+                }
+
+            }
+        }
+    }
+
+    class ExitItemHandler implements EventHandler<ActionEvent>{
+        @Override public void handle(ActionEvent event){
+            primaryStage.fireEvent(new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST));
         }
     }
 
