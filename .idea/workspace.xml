@@ -4,18 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cb466061-47ff-46c2-aa34-15be9bbba21a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PathFinder.java" beforeDir="false" afterPath="$PROJECT_DIR$/PathFinder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/capture.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ExitHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ExitHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ExitItemHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ExitItemHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewPlaceClickHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewPlaceClickHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewPlaceHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewPlaceHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$SaveImgHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$SaveImgHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder.class" afterDir="false" />
-    </list>
+    <list default="true" id="cb466061-47ff-46c2-aa34-15be9bbba21a" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -140,7 +129,7 @@
       <workItem from="1652122991145" duration="1869000" />
       <workItem from="1652125197957" duration="596000" />
       <workItem from="1652125893309" duration="196000" />
-      <workItem from="1652173436674" duration="6244000" />
+      <workItem from="1652173436674" duration="6266000" />
     </task>
     <servers />
   </component>
