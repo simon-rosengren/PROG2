@@ -12,8 +12,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
@@ -23,20 +21,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javafx.util.Pair;
 
 import javax.imageio.ImageIO;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class PathFinder extends Application {
     public static final int CIRCLE_WIDTH = 20;
@@ -47,16 +39,20 @@ public class PathFinder extends Application {
     private ImageView newMapImgView;
     private Image newMapImg;
     private boolean changed = false;
-    //Använda för spara platser och dess koordinater
-    private Map<String, ArrayList<Double>> places = null;
-    //Används för att spara platser och dess connections till ställen, samt vikten
-    private Map<String, Set<String>> connections = null;
-    private Button findPath;
-    private Button showConnection;
-    private Button newPlace;
-    private Button newConnection;
-    private Button changeConnection;
-    private Canvas canvas;
+    private ArrayList<Place> markedPlaces = new ArrayList<>();
+    //Används för att spara platser
+    private Map<Place, Set<String>> places = null;
+    private Button btnFindPath;
+    private Button btnShowConnection;
+    private Button btnNewPlace;
+    private Button btnNewConnection;
+    private Button btnChangeConnection;
+    private Pane outputArea = new Pane();
+
+    Dialog<Pair<String, Integer>> dialog = new Dialog<>();
+    TextField textName;
+    TextField textTime;
+
 
     @Override
     public void start (Stage primaryStage){
@@ -69,9 +65,9 @@ public class PathFinder extends Application {
         setFileBar();
         setFlowPane();
 
+        outputArea.setPrefSize(newMapImg.getWidth(), newMapImg.getHeight());
         center = new Pane();
         root.setCenter(center);
-        canvas = new Canvas(newMapImg.getHeight(), newMapImg.getWidth());
 
         Scene scene = new Scene(new VBox(file, root), 1000, 500);
         primaryStage.setScene(scene);
@@ -80,53 +76,54 @@ public class PathFinder extends Application {
     }
 
     public void setFileBar(){
-        MenuBar menubar = new MenuBar();
+        MenuBar menu = new MenuBar();
         file = new VBox();
-        file.getChildren().add(menubar);
-        Menu fileMenu = new Menu("File");
-        menubar.getMenus().add(fileMenu);
+        file.getChildren().add(menu);
+        Menu menuFile = new Menu("File");
+        menu.getMenus().add(menuFile);
 
-        MenuItem newMap = new MenuItem("New Map");
-        newMap.setOnAction(new NewMapHandler());
+        MenuItem menuNewMap = new MenuItem("New Map");
+        menuNewMap.setOnAction(new NewMapHandler());
 
-        MenuItem open = new MenuItem("Open");
-        open.setOnAction(new OpenHandler());
+        MenuItem menuOpenFile = new MenuItem("Open");
+        menuOpenFile.setOnAction(new OpenHandler());
 
-        MenuItem save = new MenuItem("Save");
-        save.setOnAction(new SaveHandler());
+        MenuItem menuSaveFile = new MenuItem("Save");
+        menuSaveFile.setOnAction(new SaveHandler());
 
-        MenuItem saveImg = new MenuItem("Save Image");
-        saveImg.setOnAction(new SaveImgHandler());
+        MenuItem menuSaveImage = new MenuItem("Save Image");
+        menuSaveImage.setOnAction(new SaveImgHandler());
 
-        MenuItem exit = new MenuItem("Exit");
-        exit.setOnAction(new ExitItemHandler());
+        MenuItem menuExit = new MenuItem("Exit");
+        menuExit.setOnAction(new ExitItemHandler());
 
-        fileMenu.getItems().addAll(newMap, open, save, saveImg, exit);
+        menuFile.getItems().addAll(menuNewMap, menuOpenFile, menuSaveFile, menuSaveImage, menuExit);
     }
 
     public void setFlowPane(){
-        findPath = new Button("Find Path");
-        findPath.setDisable(true);
+        btnFindPath = new Button("Find Path");
+        btnFindPath.setDisable(true);
 
-        showConnection = new Button("Show Connection");
-        showConnection.setDisable(true);
+        btnShowConnection = new Button("Show Connection");
+        btnShowConnection.setDisable(true);
 
-        newPlace = new Button("New Place");
-        newPlace.setDisable(true);
-        newPlace.setOnAction(new NewPlaceHandler());
+        btnNewPlace = new Button("New Place");
+        btnNewPlace.setDisable(true);
+        btnNewPlace.setOnAction(new NewPlaceHandler());
 
-        newConnection = new Button("New Connection");
-        newConnection.setDisable(true);
+        btnNewConnection = new Button("New Connection");
+        btnNewConnection.setDisable(true);
+        btnNewConnection.setOnAction(new NewConnectionHandler());
 
-        changeConnection = new Button("Change Connection");
-        changeConnection.setDisable(true);
+        btnChangeConnection = new Button("Change Connection");
+        btnChangeConnection.setDisable(true);
 
         FlowPane top = new FlowPane();
         top.setAlignment(Pos.CENTER);
         top.setPadding(new Insets(5));
         top.setHgap(5);
         root.setTop(top);
-        top.getChildren().addAll(findPath, showConnection, newPlace, newConnection, changeConnection);
+        top.getChildren().addAll(btnFindPath, btnShowConnection, btnNewPlace, btnNewConnection, btnChangeConnection);
     }
 
     private void open(){
@@ -134,7 +131,6 @@ public class PathFinder extends Application {
             FileInputStream inStream = new FileInputStream("europa.graph");
             ObjectInputStream in = new ObjectInputStream(inStream);
             places = (Map) in.readObject();
-            connections = (Map) in.readObject();
             in.close();
             inStream.close();
             changed = false;
@@ -157,13 +153,13 @@ public class PathFinder extends Application {
             primaryStage.setHeight(newMapImg.getHeight());
             primaryStage.setWidth(newMapImg.getWidth());
 
-            center.getChildren().add(canvas);
+            center.getChildren().add(outputArea);
 
-            findPath.setDisable(false);
-            showConnection.setDisable(false);
-            newPlace.setDisable(false);
-            newConnection.setDisable(false);
-            changeConnection.setDisable(false);
+            btnFindPath.setDisable(false);
+            btnShowConnection.setDisable(false);
+            btnNewPlace.setDisable(false);
+            btnNewConnection.setDisable(false);
+            btnChangeConnection.setDisable(false);
         }
     }
 
@@ -199,7 +195,6 @@ public class PathFinder extends Application {
             FileOutputStream outStream = new FileOutputStream("europa.graph");
             ObjectOutputStream out = new ObjectOutputStream(outStream);
             out.writeObject(places);
-            out.writeObject(connections);
             out.close();
             outStream.close();
             changed = false;
@@ -267,9 +262,9 @@ public class PathFinder extends Application {
     class NewPlaceHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
-            canvas.setCursor(Cursor.CROSSHAIR);
-            newPlace.setDisable(true);
-            canvas.setOnMouseClicked(new NewPlaceClickHandler());
+            outputArea.setCursor(Cursor.CROSSHAIR);
+            btnNewPlace.setDisable(true);
+            outputArea.setOnMouseClicked(new NewPlaceClickHandler());
         }
     }
 
@@ -287,22 +282,101 @@ public class PathFinder extends Application {
             TextField textFieldPlace = nameOfPlace.getEditor();
             String place = textFieldPlace.getText();
 
-            canvas.setCursor(Cursor.DEFAULT);
-            newPlace.setDisable(false);
+            outputArea.setCursor(Cursor.DEFAULT);
+            btnNewPlace.setDisable(false);
 
-            GraphicsContext gc = canvas.getGraphicsContext2D();
+            Place newPlace = new Place(place, x, y);
+            newPlace.setOnMouseClicked(new MarkClickHandler());
 
-            gc.strokeText(place, x + 16, y + 28);
-            gc.setFill(Color.BLUE);
-            gc.fillOval(x - 10, y - 10, CIRCLE_WIDTH, 20);
+            outputArea.getChildren().add(newPlace);
+            outputArea.setOnMouseClicked(null);
         }
     }
 
-    //göra en java klass i programmappen
-    //göra en klass för city/node extends circle
-    //sätta lyssnare på dom så användaren kan markera cirkeln och byta färg på den
-    //behöver ingen canvas
-    //representerar en cirkel som läggs ut på kartan genom typ center.getchildren.add()node
+    class MarkClickHandler implements EventHandler<MouseEvent>{
+        @Override
+        public void handle(MouseEvent event){
+            Place temp = (Place) event.getSource();
+            if(temp.isMarked){
+                temp.unmarkPlace();
+                markedPlaces.remove(temp);
+            } else if(markedPlaces.size() < 2){
+                temp.markPlace();
+                markedPlaces.add(temp);
+            }
+        }
+    }
+
+    class NewConnectionHandler implements EventHandler<ActionEvent>{
+        @Override
+        public void handle (ActionEvent event){
+            if(markedPlaces.size() < 2){
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error!");
+                alert.setHeaderText("Two places must be selected!");
+                alert.showAndWait();
+      //    } else if(){
+                //Om det redan finns en förbindelse mellan de valda platserna ska också ett lämpligt
+                //felmeddelande visas (det kan bara finnas en förbindelse mellan två platser).
+            } else{
+                showTextInputDialog();
+            }
+        }
+    }
+
+    public void showTextInputDialog(){
+        dialog.setTitle("Connection");
+        dialog.setHeaderText("Connection from " + markedPlaces.get(0).getName() + " to " + markedPlaces.get(1).getName());
+
+        Label labelName = new Label("Name: ");
+        Label labelTime = new Label("Time: ");
+        textName = new TextField();
+        textTime = new TextField();
+
+        /*
+        textTime.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue,
+                                String newValue) {
+                if (!newValue.matches("\d*")) {
+                    textField.setText(newValue.replaceAll("[^\d]", ""));
+                }
+            }
+        });
+*/
+        Button buttonOk = new Button("OK");
+        buttonOk.setOnAction(new ButtonOkHandler());
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.add(labelName, 1, 1);
+        grid.add(textName, 2, 1);
+        grid.add(labelTime, 1, 2);
+        grid.add(textTime, 2, 2);
+        grid.add(buttonOk, 3, 3);
+
+        dialog.getDialogPane().setContent(grid);
+
+        Optional<Pair<String, Integer>> result = dialog.showAndWait();
+    }
+
+    class ButtonOkHandler implements EventHandler<ActionEvent>{
+        @Override
+        public void handle(ActionEvent event){
+            if(textName.getText().isEmpty() || !textTime.getText().matches(".*[0-9].*")){
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Warning!");
+                alert.setHeaderText("Name can't be empty and Time cannot be letters!");
+                alert.showAndWait();
+            } else{
+                //Om inmatningen uppfyller dessa villkor ska förbindelsen skapas
+                dialog.close();
+            }
+            //Namnfältet får inte
+            //vara tomt och tidfältet måste bestå av siffror. Om inmatningen inte uppfyller villkoren ska ett
+            //felmeddelande ges och operationen ska avbrytas.
+        }
+    }
 
     public static void main(String [] args){
         Application.launch(args);
