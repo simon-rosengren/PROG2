@@ -3,26 +3,17 @@ import javafx.scene.shape.Circle;
 
 public class Place extends Circle {
     private static final double CIRCLE_RADIUS = 10;
-    String name;
-    double x;
-    double y;
-    boolean isMarked = false;
+    private String name;
+    private boolean isMarked = false;
 
     public Place (String name, double x, double y){
         super(x, y, CIRCLE_RADIUS, Color.BLUE);
         this.name = name;
     }
+    //circle har redan metoder för getcenterx getcentery
 
     public String getName(){
         return name;
-    }
-
-    public double getX(){
-        return x;
-    }
-
-    public double getY(){
-        return y;
     }
 
     public void markPlace(){
@@ -33,5 +24,9 @@ public class Place extends Circle {
     public void unmarkPlace(){
         isMarked = false;
         setFill(Color.BLUE);
+    }
+
+    public boolean isMarked(){
+        return isMarked;
     }
 }
