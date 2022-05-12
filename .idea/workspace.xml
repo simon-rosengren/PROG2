@@ -32,6 +32,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "WebServerToolWindowFactoryState": "false",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -128,6 +129,7 @@
       <workItem from="1652173436674" duration="6266000" />
       <workItem from="1652190667405" duration="13327000" />
       <workItem from="1652209101255" duration="48000" />
+      <workItem from="1652358729002" duration="11000" />
     </task>
     <servers />
   </component>
