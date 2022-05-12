@@ -5,9 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cb466061-47ff-46c2-aa34-15be9bbba21a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/europa.gif" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/PathFinder.java" beforeDir="false" afterPath="$PROJECT_DIR$/PathFinder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ButtonOkHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ButtonOkHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ButtonOkHandler2.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ExitHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ExitHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ExitItemHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ExitItemHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$MarkClickHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$MarkClickHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewConnectionHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewConnectionHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewMapHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewMapHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewPlaceClickHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewPlaceClickHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewPlaceHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewPlaceHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$SaveImgHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$SaveImgHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ShowConnectionHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ShowConnectionHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,10 +45,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="aspect.path.notification.shown" value="true" />
-  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)"
+  }
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\idaam\Pictures\Programmering 2 (PROG2)\PROG2\PROG2" />

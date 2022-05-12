@@ -49,14 +49,15 @@ public class PathFinder extends Application {
     private Button btnNewConnection;
     private Button btnChangeConnection;
     private Pane outputArea = new Pane();
-    Dialog<Pair<String, Integer>> dialog = new Dialog<>();
-    TextField textName;
-    TextField textTime;
+    private Dialog<Pair<String, Integer>> dialog = new Dialog<>();
+    private TextField textName;
+    private TextField textTime;
     private ListGraph<Place> listGraph = new ListGraph<Place>();
-
-    Canvas canvas;
-    GraphicsContext gc;
-
+    private Canvas canvas;
+    private GraphicsContext gc;
+    private boolean isNewConnection;
+    private boolean isShowConnection;
+    private boolean isChangedConnection;
     @Override
     public void start (Stage primaryStage){
         this.primaryStage = primaryStage;
@@ -69,6 +70,7 @@ public class PathFinder extends Application {
 
         setFileBar();
         setFlowPane();
+        setTextInputDialog();
 
         outputArea.setPrefSize(newMapImg.getWidth(), newMapImg.getHeight());
         center = new Pane();
@@ -108,6 +110,7 @@ public class PathFinder extends Application {
     public void setFlowPane(){
         btnFindPath = new Button("Find Path");
         btnFindPath.setDisable(true);
+        btnFindPath.setOnAction(new FindPathHandler());
 
         btnShowConnection = new Button("Show Connection");
         btnShowConnection.setDisable(true);
@@ -123,6 +126,7 @@ public class PathFinder extends Application {
 
         btnChangeConnection = new Button("Change Connection");
         btnChangeConnection.setDisable(true);
+        btnChangeConnection.setOnAction(new ChangeConnectionHandler());
 
         FlowPane top = new FlowPane();
         top.setAlignment(Pos.CENTER);
@@ -305,7 +309,6 @@ public class PathFinder extends Application {
                 listGraph.add(newPlace);
                 outputArea.getChildren().add(newPlace);
                 gc.strokeText(newPlace.getName(), x + PLACE_NAME_X, y + PLACE_NAME_Y);
-
             }
             outputArea.setOnMouseClicked(null);
         }
@@ -328,6 +331,7 @@ public class PathFinder extends Application {
     class NewConnectionHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle (ActionEvent event){
+            isNewConnection = true;
             if(markedPlaces.size() < 2){
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error!");
@@ -339,14 +343,15 @@ public class PathFinder extends Application {
                 alert.setHeaderText("Connection already exists!");
                 alert.showAndWait();
             } else{
-                showTextInputDialog();
+                dialog.setHeaderText("Connection from " + markedPlaces.get(0).getName() + " to " + markedPlaces.get(1).getName());
+                dialog.showAndWait();
             }
+            isNewConnection = false;
         }
     }
 
-    public void showTextInputDialog(){
+    public void setTextInputDialog(){
         dialog.setTitle("Connection");
-        dialog.setHeaderText("Connection from " + markedPlaces.get(0).getName() + " to " + markedPlaces.get(1).getName());
 
         Label labelName = new Label("Name: ");
         Label labelTime = new Label("Time: ");
@@ -365,23 +370,37 @@ public class PathFinder extends Application {
         grid.add(buttonOk, 2, 3);
 
         dialog.getDialogPane().setContent(grid);
-        dialog.showAndWait();
     }
 
     class ButtonOkHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
+            Place from = markedPlaces.get(0);
+            Place to = markedPlaces.get(1);
             if(textName.getText().isEmpty() || !textTime.getText().matches(".*[0-9].*")){
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Warning!");
                 alert.setHeaderText("Name can't be empty and Time cannot be letters!");
                 alert.showAndWait();
-            } else{
-                Place from = markedPlaces.get(0);
-                Place to = markedPlaces.get(1);
+            } else if (isNewConnection){
                 listGraph.connect(from, to, textName.getText(), Integer.parseInt(textTime.getText()));
                 gc.setLineWidth(4);
                 gc.strokeLine(from.getCenterX(), from.getCenterY(), to.getCenterX(), to.getCenterY());
+                gc.setLineWidth(1);
+                dialog.close();
+                markedPlaces.clear();
+                from.unmarkPlace();
+                to.unmarkPlace();
+                textName.setText(null);
+                textTime.setText(null);
+            } else if (isShowConnection){
+                dialog.close();
+                markedPlaces.clear();
+                from.unmarkPlace();
+                to.unmarkPlace();
+            } else if(isChangedConnection){
+                int newWeight = Integer.parseInt(textTime.getText());
+                listGraph.setConnectionWeight(markedPlaces.get(0), markedPlaces.get(1), newWeight);
                 dialog.close();
                 markedPlaces.clear();
                 from.unmarkPlace();
@@ -396,6 +415,7 @@ public class PathFinder extends Application {
     class ShowConnectionHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
+            isShowConnection = true;
             if(markedPlaces.size() < 2) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error!");
@@ -409,48 +429,73 @@ public class PathFinder extends Application {
             } else{
                 dialog.setHeaderText("Connection from " + markedPlaces.get(0).getName() + " to " + markedPlaces.get(1).getName());
 
-                Label labelName = new Label("Name: ");
-                Label labelTime = new Label("Time: ");
-                textName = new TextField();
-                textTime = new TextField();
+                Place from = markedPlaces.get(0);
+                Place to = markedPlaces.get(1);
 
-                //Är nåt fel här?
-                textName.setText(textName.getText());
-                textTime.setText(textTime.getText());
+                Edge edge = listGraph.getEdgeBetween(from, to);
+
+                textName.setText(edge.getName());
+                textTime.setText(Integer.toString(edge.getWeight()));
 
                 textName.setEditable(false);
                 textTime.setEditable(false);
 
-                //ButtonOk funkar nu, den stänger ner fönstret
-                //Men felmeddelanden dyker upp fortfarande
-                //Och texten i rutorna visas inte
-                Button buttonOk = new Button("OK");
-                buttonOk.setOnAction(new ButtonOkHandler2());
-                dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
-
-                GridPane grid = new GridPane();
-                grid.add(labelName, 1, 1);
-                grid.add(textName, 2, 1);
-                grid.add(labelTime, 1, 2);
-                grid.add(textTime, 2, 2);
-                grid.add(buttonOk, 2, 3);
-
-                dialog.getDialogPane().setContent(grid);
                 dialog.showAndWait();
 
                 textName.setEditable(true);
                 textTime.setEditable(true);
+
+                textName.setText(null);
+                textTime.setText(null);
+                isShowConnection = false;
             }
         }
     }
 
-    //Tillfällig ButtonOkHandler för showconnections
-    //senare lägga in villkor i första ButtonOkHandler
-    //och lägga in detta där på något vis
-    class ButtonOkHandler2 implements EventHandler<ActionEvent>{
+    class ChangeConnectionHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
-            dialog.close();
+            isChangedConnection = true;
+            if(markedPlaces.size() < 2) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error!");
+                alert.setHeaderText("Two places must be selected!");
+                alert.showAndWait();
+            } else if(listGraph.getEdgeBetween(markedPlaces.get(0), markedPlaces.get(1)) == null) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error!");
+                alert.setHeaderText("There is no connection between " + markedPlaces.get(0).getName() + " and " + markedPlaces.get(1).getName());
+                alert.showAndWait();
+            } else{
+                dialog.setHeaderText("Connection from " + markedPlaces.get(0).getName() + " to " + markedPlaces.get(1).getName());
+                Place from = markedPlaces.get(0);
+                Place to = markedPlaces.get(1);
+
+                Edge edge = listGraph.getEdgeBetween(from, to);
+
+                textName.setText(edge.getName());
+                textName.setEditable(false);
+                dialog.showAndWait();
+
+                textName.setEditable(true);
+                textName.setText(null);
+                textTime.setText(null);
+                isChangedConnection = false;
+            }
+        }
+    }
+
+    //Fortsätta här
+    class FindPathHandler implements EventHandler<ActionEvent>{
+        @Override
+        public void handle(ActionEvent event){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Message");
+            alert.setHeaderText("The Path from " + markedPlaces.get(0).getName() + " to " + markedPlaces.get(1).getName());
+
+            alert.setContentText("I have a great message for you!");
+
+            alert.showAndWait();
         }
     }
 
