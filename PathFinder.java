@@ -38,7 +38,6 @@ public class PathFinder extends Application {
     private Stage primaryStage;
     private BorderPane root = new BorderPane();
     private VBox file = new VBox();
-    private Pane center = new Pane();
     private Pane outputArea = new Pane();
 
     private Image newMapImg = new Image("file:europa.gif");
@@ -51,7 +50,6 @@ public class PathFinder extends Application {
     private Button btnChangeConnection = new Button("Change Connection");
     private Dialog<Pair<String, Integer>> dialog = new Dialog<>();
     private ListGraph<Place> listGraph = new ListGraph<Place>();
-
     private TextField textName;
     private TextField textTime;
     private Canvas canvas = new Canvas(newMapImg.getWidth(), newMapImg.getHeight());
@@ -69,15 +67,14 @@ public class PathFinder extends Application {
         setId();
         setTextInputDialog();
 
-        root.setCenter(center);
-
-        Scene scene = new Scene(new VBox(file, root), 1000, 500);
+        Scene scene = new Scene(new VBox(file, root), 604, 100);
         primaryStage.setScene(scene);
         primaryStage.show();
         primaryStage.setOnCloseRequest(new ExitHandler());
     }
 
     public void setId(){
+        root.setCenter(outputArea);
         outputArea.setPrefSize(newMapImg.getWidth(), newMapImg.getHeight());
 
         MenuBar menu = new MenuBar();
@@ -150,12 +147,10 @@ public class PathFinder extends Application {
         @Override
         public void handle(ActionEvent event) {
             if (isFirstNewMap){
-                center.getChildren().add(newMapImgView);
+                outputArea.getChildren().add(newMapImgView);
                 primaryStage.setHeight(newMapImg.getHeight());
                 primaryStage.setWidth(newMapImg.getWidth());
-
-                center.getChildren().add(canvas);
-                center.getChildren().add(outputArea);
+                outputArea.getChildren().add(canvas);
             } else{
                 outputArea.getChildren().removeAll(listGraph.getNodes());
                 graphicsContext.clearRect(0,0, canvas.getWidth(), canvas.getHeight());
