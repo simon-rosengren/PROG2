@@ -39,20 +39,19 @@ public class PathFinder extends Application {
     private BorderPane root = new BorderPane();
     private VBox file = new VBox();
     private Pane outputArea = new Pane();
-
-    private Image newMapImg = new Image("file:europa.gif");
-    private ImageView newMapImgView = new ImageView(newMapImg);
-    private ArrayList<Place> markedPlaces = new ArrayList<>();
+    private Image image = new Image("file:europa.gif");
+    private ImageView imageView = new ImageView(image);
     private Button btnFindPath = new Button("Find Path");
     private Button btnShowConnection = new Button("Show Connection");
     private Button btnNewPlace = new Button("New Place");
     private Button btnNewConnection = new Button("New Connection");
     private Button btnChangeConnection = new Button("Change Connection");
+    private ArrayList<Place> markedPlaces = new ArrayList<>();
     private Dialog<Pair<String, Integer>> dialog = new Dialog<>();
-    private ListGraph<Place> listGraph = new ListGraph<Place>();
-    private TextField textName;
-    private TextField textTime;
-    private Canvas canvas = new Canvas(newMapImg.getWidth(), newMapImg.getHeight());
+    private ListGraph<Place> listGraph = new ListGraph<>();
+    private TextField textName = new TextField();
+    private TextField textTime = new TextField();
+    private Canvas canvas = new Canvas(image.getWidth(), image.getHeight());
     private GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
     private boolean isFirstNewMap = true;
     private boolean isNewConnection;
@@ -71,6 +70,10 @@ public class PathFinder extends Application {
         setId();
         setTextInputDialog();
 
+        alertError.setTitle("Error!");
+        alertConfirmation.setTitle("Warning!");
+        alertWarning.setTitle("Warning!");
+
         Scene scene = new Scene(new VBox(file, root), 604, 100);
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -79,11 +82,12 @@ public class PathFinder extends Application {
 
     public void setId(){
         root.setCenter(outputArea);
-        outputArea.setPrefSize(newMapImg.getWidth(), newMapImg.getHeight());
+        outputArea.setPrefSize(image.getWidth(), image.getHeight());
 
         MenuBar menu = new MenuBar();
-        file.getChildren().add(menu);
         Menu menuFile = new Menu("File");
+
+        file.getChildren().add(menu);
         menu.getMenus().add(menuFile);
 
         MenuItem menuNewMap = new MenuItem("New Map");
@@ -126,17 +130,16 @@ public class PathFinder extends Application {
         top.getChildren().addAll(btnFindPath, btnShowConnection, btnNewPlace, btnNewConnection, btnChangeConnection);
     }
 
+
     public void setTextInputDialog(){
         dialog.setTitle("Connection");
 
         Label labelName = new Label("Name: ");
         Label labelTime = new Label("Time: ");
-        textName = new TextField();
-        textTime = new TextField();
 
         Button buttonOk = new Button("OK");
         buttonOk.setOnAction(new ButtonOkHandler());
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
 
         GridPane grid = new GridPane();
         grid.add(labelName, 1, 1);
@@ -147,19 +150,20 @@ public class PathFinder extends Application {
 
         dialog.getDialogPane().setContent(grid);
     }
+    
 
     class NewMapHandler implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
             if (isFirstNewMap){
-                outputArea.getChildren().add(newMapImgView);
-                primaryStage.setHeight(newMapImg.getHeight());
-                primaryStage.setWidth(newMapImg.getWidth());
+                outputArea.getChildren().add(imageView);
+                primaryStage.setHeight(image.getHeight());
+                primaryStage.setWidth(image.getWidth());
                 outputArea.getChildren().add(canvas);
-            } else if (isUnsavedChanges()){
-                isUnsavedChanges();
+            } else if (!listGraph.getNodes().isEmpty()){
+                alertConfirmation.setHeaderText("Unsaved changes, continue anyway?");
                 Optional<ButtonType> result = alertConfirmation.showAndWait();
-                if (result.get() == ButtonType.OK) {
+                if (result.isPresent() && result.get() == ButtonType.OK) {
                     outputArea.getChildren().removeAll(listGraph.getNodes());
                     graphicsContext.clearRect(0,0, canvas.getWidth(), canvas.getHeight());
                     listGraph.getNodes().clear();
@@ -268,7 +272,7 @@ public class PathFinder extends Application {
     class SaveImageHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
-            WritableImage snapshot = newMapImgView.getScene().snapshot(null);
+            WritableImage snapshot = imageView.getScene().snapshot(null);
             File file = new File("capture.png");
             try {
                 ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", file);
@@ -281,31 +285,15 @@ public class PathFinder extends Application {
 
     class ExitHandler implements EventHandler<WindowEvent> {
         @Override public void handle(WindowEvent event) {
-            if(isUnsavedChanges()){
+            if(!listGraph.getNodes().isEmpty()){
+                alertConfirmation.setHeaderText("Unsaved changes, exit anyway?");
                 Optional<ButtonType> result = alertConfirmation.showAndWait();
-                if (result.get() != ButtonType.OK) {
-                    event.consume();
-                }
-            }
-        }
-    }
-
-    /* Gamla exit handler behövs denna?
-    class ExitHandler implements EventHandler<WindowEvent> {
-        @Override public void handle(WindowEvent event) {
-            if (!listGraph.getNodes().isEmpty()) {
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle("Warning!");
-                alert.setHeaderText("Unsaved changes, exit anyway?");
-                alert.setContentText(null);
-                Optional<ButtonType> result = alert.showAndWait();
                 if (result.isPresent() && result.get() != ButtonType.OK) {
                     event.consume();
                 }
             }
         }
     }
-    */
 
     class ExitItemHandler implements EventHandler<ActionEvent>{
         @Override
@@ -386,23 +374,21 @@ public class PathFinder extends Application {
             double x = event.getX();
             double y = event.getY();
 
-            TextInputDialog nameOfPlace = new TextInputDialog();
-            nameOfPlace.setTitle("Name");
-            nameOfPlace.setHeaderText("Name of place:");
-            nameOfPlace.showAndWait();
+            TextInputDialog textInputDialog = new TextInputDialog();
+            textInputDialog.setTitle("Name");
+            textInputDialog.setHeaderText("Name of place:");
+            textInputDialog.showAndWait();
 
-            TextField textFieldPlace = nameOfPlace.getEditor();
-            String place = textFieldPlace.getText();
+            String name = textInputDialog.getEditor().getText();
 
             outputArea.setCursor(Cursor.DEFAULT);
             btnNewPlace.setDisable(false);
 
-            if(place.isEmpty() || place.matches(".*[0-9].*")){
-                alertWarning.setTitle("Warning!");
-                alertWarning.setHeaderText("Name can't be empty and must be letters!");
+            if(name.isEmpty() || name.matches(".*[0-9].*")){
+                alertWarning.setHeaderText("Name cannot be empty and cannot contain numbers!");
                 alertWarning.showAndWait();
             } else{
-                Place newPlace = new Place(place, x, y);
+                Place newPlace = new Place(name, x, y);
                 newPlace.setOnMouseClicked(new MarkClickHandler());
                 listGraph.add(newPlace);
                 outputArea.getChildren().add(newPlace);
@@ -416,7 +402,6 @@ public class PathFinder extends Application {
         @Override
         public void handle (ActionEvent event){
             isNewConnection = true;
-
             if(markedPlaces.size() < 2){
                 twoPlacesMustBeSelectedWarning();
             } else if(listGraph.getEdgeBetween(markedPlaces.get(0), markedPlaces.get(1)) != null){
@@ -463,9 +448,8 @@ public class PathFinder extends Application {
         public void handle(ActionEvent event){
             Place from = markedPlaces.get(0);
             Place to = markedPlaces.get(1);
-            if(textName.getText().isEmpty() || !textTime.getText().matches(".*[0-9].*")){
-                alertWarning.setTitle("Warning!");
-                alertWarning.setHeaderText("Name can't be empty and Time cannot be letters!");
+            if(textName.getText().isEmpty() || textName.getText().matches(".*[0-9].*") || !textTime.getText().matches(".*[0-9].*")){
+                alertWarning.setHeaderText("Name cannot be empty or contain numbers and Time cannot be letters!");
                 alertWarning.showAndWait();
             } else if (isNewConnection){
                 listGraph.connect(from, to, textName.getText(), Integer.parseInt(textTime.getText()));
@@ -492,32 +476,20 @@ public class PathFinder extends Application {
         textTime.setText(null);
     }
 
-    public void twoPlacesMustBeSelectedWarning(){
-        alertError.setTitle("Error!");
-        alertError.setHeaderText("Two places must be selected!");
-        alertError.showAndWait();
-    }
-
-    public void noConnectionWarning(){
-        alertError.setTitle("Error!");
-        alertError.setHeaderText("There is no connection between " + markedPlaces.get(0).getName() + " and " + markedPlaces.get(1).getName());
-        alertError.showAndWait();
-    }
-
     public void clearMarkedPlaces(Place to, Place from){
         markedPlaces.clear();
         to.unmarkPlace();
         from.unmarkPlace();
     }
 
-    public boolean isUnsavedChanges(){
-        if (!listGraph.getNodes().isEmpty()) {
-            alertConfirmation.setTitle("Warning!");
-            alertConfirmation.setHeaderText("Unsaved changes, exit anyway?");
-            return true;
-        } else{
-            return false;
-        }
+    public void twoPlacesMustBeSelectedWarning(){
+        alertError.setHeaderText("Two places must be selected!");
+        alertError.showAndWait();
+    }
+
+    public void noConnectionWarning(){
+        alertError.setHeaderText("There is no connection between " + markedPlaces.get(0).getName() + " and " + markedPlaces.get(1).getName());
+        alertError.showAndWait();
     }
 
     public static void main(String [] args){

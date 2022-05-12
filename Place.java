@@ -10,7 +10,6 @@ public class Place extends Circle {
         super(x, y, CIRCLE_RADIUS, Color.BLUE);
         this.name = name;
     }
-    //circle har redan metoder för getcenterx getcentery
 
     public String getName(){
         return name;
