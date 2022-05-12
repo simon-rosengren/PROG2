@@ -1,26 +1,40 @@
+// PROG2 VT2022, Inlämningsuppgift, del 2
+// Grupp 017
+// Ida Amneryd idam7056
+// Simon Rosengren siro6690
+// Malin Andersson maan8354
+
 import javafx.application.Application;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.event.EventHandler;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+import javafx.util.Pair;
 
-public class PathFinder extends Application{
+import javax.imageio.ImageIO;
+import java.io.*;
+import java.util.*;
 
-<<<<<<< HEAD
-    private Stage primaryStage;
-    private BorderPane root = new BorderPane();
-    private VBox file = new VBox();
-    private Pane center = new Pane();
-    private ImageView imageView = new ImageView();
-=======
 public class PathFinder extends Application {
-    public static final int CIRCLE_WIDTH = 20;
+    public static final int PLACE_NAME_X = 10;
+    public static final int PLACE_NAME_Y = 12;
     private Stage primaryStage;
     private BorderPane root = new BorderPane();
     private VBox file = new VBox();
@@ -29,75 +43,58 @@ public class PathFinder extends Application {
     private Image newMapImg;
     private boolean changed = false;
     private ArrayList<Place> markedPlaces = new ArrayList<>();
-    //Används för att spara platser
-    private Map<Place, Set<String>> places = null;
     private Button btnFindPath;
     private Button btnShowConnection;
     private Button btnNewPlace;
     private Button btnNewConnection;
     private Button btnChangeConnection;
     private Pane outputArea = new Pane();
-
     Dialog<Pair<String, Integer>> dialog = new Dialog<>();
     TextField textName;
     TextField textTime;
+    private ListGraph<Place> listGraph = new ListGraph<Place>();
 
->>>>>>> parent of 4924bc4 (onsdag)
+    Canvas canvas;
+    GraphicsContext gc;
 
     @Override
     public void start (Stage primaryStage){
         this.primaryStage = primaryStage;
-<<<<<<< HEAD
-=======
         primaryStage.setTitle("PathFinder");
 
         newMapImg = new Image("file:europa.gif");
         newMapImgView = new ImageView(newMapImg);
->>>>>>> parent of 4924bc4 (onsdag)
+        canvas = new Canvas(newMapImg.getWidth(), newMapImg.getHeight());
+        gc = canvas.getGraphicsContext2D();
 
         setFileBar();
         setFlowPane();
 
+        outputArea.setPrefSize(newMapImg.getWidth(), newMapImg.getHeight());
         center = new Pane();
-        center.getChildren().add(imageView);
         root.setCenter(center);
 
-        Scene scene = new Scene(new VBox(file, root), 1200, 900);
+        Scene scene = new Scene(new VBox(file, root), 1000, 500);
         primaryStage.setScene(scene);
         primaryStage.show();
-
+        primaryStage.setOnCloseRequest(new ExitHandler());
     }
 
     public void setFileBar(){
+        MenuBar menu = new MenuBar();
         file = new VBox();
-        MenuBar menubar = new MenuBar();
-        file.getChildren().add(menubar);
-        Menu fileMenu = new Menu("File");
-        menubar.getMenus().add(fileMenu);
-        MenuItem newMap = new MenuItem("New Map");
-        MenuItem open = new MenuItem("Open");
-        MenuItem save = new MenuItem("Save");
-        MenuItem saveImage = new MenuItem("Save Image");
-        MenuItem exit = new MenuItem("Exit");
+        file.getChildren().add(menu);
+        Menu menuFile = new Menu("File");
+        menu.getMenus().add(menuFile);
 
-        fileMenu.getItems().addAll(newMap, open, save, saveImage, exit);
+        MenuItem menuNewMap = new MenuItem("New Map");
+        menuNewMap.setOnAction(new NewMapHandler());
 
-<<<<<<< HEAD
-    }
-
-    public void setFlowPane(){
-        VBox topVBox = new VBox();
-        Button findPath = new Button("Find Path");
-        Button showConnection = new Button("Show Connection");
-        Button newPlace = new Button("New Place");
-        Button newConnection = new Button("New Connection");
-        Button changeConnection = new Button("Change Connection");
-=======
         MenuItem menuOpenFile = new MenuItem("Open");
-        menuOpenFile.setOnAction(new OpenHandler());
+        //menuOpenFile.setOnAction(new OpenHandler());
 
         MenuItem menuSaveFile = new MenuItem("Save");
-        menuSaveFile.setOnAction(new SaveHandler());
+        //menuSaveFile.setOnAction(new SaveHandler());
 
         MenuItem menuSaveImage = new MenuItem("Save Image");
         menuSaveImage.setOnAction(new SaveImgHandler());
@@ -114,6 +111,7 @@ public class PathFinder extends Application {
 
         btnShowConnection = new Button("Show Connection");
         btnShowConnection.setDisable(true);
+        btnShowConnection.setOnAction(new ShowConnectionHandler());
 
         btnNewPlace = new Button("New Place");
         btnNewPlace.setDisable(true);
@@ -125,18 +123,16 @@ public class PathFinder extends Application {
 
         btnChangeConnection = new Button("Change Connection");
         btnChangeConnection.setDisable(true);
->>>>>>> parent of 4924bc4 (onsdag)
 
         FlowPane top = new FlowPane();
-        topVBox.setSpacing(5);
         top.setAlignment(Pos.CENTER);
         top.setPadding(new Insets(5));
         top.setHgap(5);
         root.setTop(top);
-        top.getChildren().addAll(findPath, topVBox, showConnection, newPlace, newConnection, changeConnection);
+        top.getChildren().addAll(btnFindPath, btnShowConnection, btnNewPlace, btnNewConnection, btnChangeConnection);
+    }
 
-<<<<<<< HEAD
-=======
+    /*
     private void open(){
         try {
             FileInputStream inStream = new FileInputStream("europa.graph");
@@ -156,7 +152,7 @@ public class PathFinder extends Application {
             alert.showAndWait();
         }
     }
-
+*/
     class NewMapHandler implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
@@ -164,6 +160,7 @@ public class PathFinder extends Application {
             primaryStage.setHeight(newMapImg.getHeight());
             primaryStage.setWidth(newMapImg.getWidth());
 
+            center.getChildren().add(canvas);
             center.getChildren().add(outputArea);
 
             btnFindPath.setDisable(false);
@@ -173,25 +170,26 @@ public class PathFinder extends Application {
             btnChangeConnection.setDisable(false);
         }
     }
+    /*
+        class OpenHandler implements EventHandler<ActionEvent>{
+            @Override
+            public void handle(ActionEvent event){
+                if (changed){
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setContentText("Unsaved changes, open anyway?");
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.isPresent() && !result.get().equals(ButtonType.OK))
+                        return;
+                }
 
-    class OpenHandler implements EventHandler<ActionEvent>{
-        @Override
-        public void handle(ActionEvent event){
-            if (changed){
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setContentText("Unsaved changes, open anyway?");
-                Optional<ButtonType> result = alert.showAndWait();
-                if (result.isPresent() && !result.get().equals(ButtonType.OK))
+                if (file == null){
                     return;
+                }
+                open();
             }
-
-            if (file == null){
-                return;
-            }
-            open();
         }
-    }
-
+        */
+/*
     class SaveHandler implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
@@ -200,15 +198,17 @@ public class PathFinder extends Application {
             save();
         }
     }
-
+/*
     private void save(){
         try{
+            //inte spara objekt, spara text
             FileOutputStream outStream = new FileOutputStream("europa.graph");
             ObjectOutputStream out = new ObjectOutputStream(outStream);
             out.writeObject(places);
             out.close();
             outStream.close();
             changed = false;
+
             /* Josefs exempel med spara post it lappar
             FileWriter file = new FileWriter("notes.txt");
             PrintWriter out = new PrintWriter(file);
@@ -221,7 +221,8 @@ public class PathFinder extends Application {
             }
             out.close();
             file.close();
-             */
+
+
         }   catch(FileNotFoundException exception){
             Alert alert = new Alert(Alert.AlertType.ERROR, "Kan inte öppna filen!");
             alert.showAndWait();
@@ -230,14 +231,11 @@ public class PathFinder extends Application {
             alert.showAndWait();
         }
     }
-
+*/
     class SaveImgHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
-            //tar med för mkt
             WritableImage snapshot = newMapImgView.getScene().snapshot(null);
-            //tar inte med prickar på kartan
-            //WritableImage snapshot = newMapImgView.snapshot(new SnapshotParameters(), null);
             File file = new File("capture.png");
             try {
                 ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", file);
@@ -296,10 +294,19 @@ public class PathFinder extends Application {
             outputArea.setCursor(Cursor.DEFAULT);
             btnNewPlace.setDisable(false);
 
-            Place newPlace = new Place(place, x, y);
-            newPlace.setOnMouseClicked(new MarkClickHandler());
+            if(place.isEmpty() || place.matches(".*[0-9].*")){
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Warning!");
+                alert.setHeaderText("Name can't be empty and must be letters!");
+                alert.showAndWait();
+            } else{
+                Place newPlace = new Place(place, x, y);
+                newPlace.setOnMouseClicked(new MarkClickHandler());
+                listGraph.add(newPlace);
+                outputArea.getChildren().add(newPlace);
+                gc.strokeText(newPlace.getName(), x + PLACE_NAME_X, y + PLACE_NAME_Y);
 
-            outputArea.getChildren().add(newPlace);
+            }
             outputArea.setOnMouseClicked(null);
         }
     }
@@ -308,7 +315,7 @@ public class PathFinder extends Application {
         @Override
         public void handle(MouseEvent event){
             Place temp = (Place) event.getSource();
-            if(temp.isMarked){
+            if(temp.isMarked()){
                 temp.unmarkPlace();
                 markedPlaces.remove(temp);
             } else if(markedPlaces.size() < 2){
@@ -326,9 +333,11 @@ public class PathFinder extends Application {
                 alert.setTitle("Error!");
                 alert.setHeaderText("Two places must be selected!");
                 alert.showAndWait();
-      //    } else if(){
-                //Om det redan finns en förbindelse mellan de valda platserna ska också ett lämpligt
-                //felmeddelande visas (det kan bara finnas en förbindelse mellan två platser).
+            } else if(listGraph.getEdgeBetween(markedPlaces.get(0), markedPlaces.get(1)) != null){
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error!");
+                alert.setHeaderText("Connection already exists!");
+                alert.showAndWait();
             } else{
                 showTextInputDialog();
             }
@@ -344,17 +353,6 @@ public class PathFinder extends Application {
         textName = new TextField();
         textTime = new TextField();
 
-        /*
-        textTime.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue,
-                                String newValue) {
-                if (!newValue.matches("\d*")) {
-                    textField.setText(newValue.replaceAll("[^\d]", ""));
-                }
-            }
-        });
-*/
         Button buttonOk = new Button("OK");
         buttonOk.setOnAction(new ButtonOkHandler());
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
@@ -364,11 +362,10 @@ public class PathFinder extends Application {
         grid.add(textName, 2, 1);
         grid.add(labelTime, 1, 2);
         grid.add(textTime, 2, 2);
-        grid.add(buttonOk, 3, 3);
+        grid.add(buttonOk, 2, 3);
 
         dialog.getDialogPane().setContent(grid);
-
-        Optional<Pair<String, Integer>> result = dialog.showAndWait();
+        dialog.showAndWait();
     }
 
     class ButtonOkHandler implements EventHandler<ActionEvent>{
@@ -380,14 +377,81 @@ public class PathFinder extends Application {
                 alert.setHeaderText("Name can't be empty and Time cannot be letters!");
                 alert.showAndWait();
             } else{
-                //Om inmatningen uppfyller dessa villkor ska förbindelsen skapas
+                Place from = markedPlaces.get(0);
+                Place to = markedPlaces.get(1);
+                listGraph.connect(from, to, textName.getText(), Integer.parseInt(textTime.getText()));
+                gc.setLineWidth(4);
+                gc.strokeLine(from.getCenterX(), from.getCenterY(), to.getCenterX(), to.getCenterY());
                 dialog.close();
+                markedPlaces.clear();
+                from.unmarkPlace();
+                to.unmarkPlace();
             }
-            //Namnfältet får inte
-            //vara tomt och tidfältet måste bestå av siffror. Om inmatningen inte uppfyller villkoren ska ett
-            //felmeddelande ges och operationen ska avbrytas.
         }
->>>>>>> parent of 4924bc4 (onsdag)
+    }
+
+    // ”Show Connection” visar uppgifter om förbindelsen mellan de två valda platserna
+    // Fönstret med uppgifter om förbindelsen kan t.ex. se ut så här
+    // (obs. att både textfälten är ickeediterbara):
+    class ShowConnectionHandler implements EventHandler<ActionEvent>{
+        @Override
+        public void handle(ActionEvent event){
+            if(markedPlaces.size() < 2) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error!");
+                alert.setHeaderText("Two places must be selected!");
+                alert.showAndWait();
+            } else if(listGraph.getEdgeBetween(markedPlaces.get(0), markedPlaces.get(1)) == null){
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error!");
+                alert.setHeaderText("There is no connection between " + markedPlaces.get(0).getName() + " and " + markedPlaces.get(1).getName());
+                alert.showAndWait();
+            } else{
+                dialog.setHeaderText("Connection from " + markedPlaces.get(0).getName() + " to " + markedPlaces.get(1).getName());
+
+                Label labelName = new Label("Name: ");
+                Label labelTime = new Label("Time: ");
+                textName = new TextField();
+                textTime = new TextField();
+
+                //Är nåt fel här?
+                textName.setText(textName.getText());
+                textTime.setText(textTime.getText());
+
+                textName.setEditable(false);
+                textTime.setEditable(false);
+
+                //ButtonOk funkar nu, den stänger ner fönstret
+                //Men felmeddelanden dyker upp fortfarande
+                //Och texten i rutorna visas inte
+                Button buttonOk = new Button("OK");
+                buttonOk.setOnAction(new ButtonOkHandler2());
+                dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+
+                GridPane grid = new GridPane();
+                grid.add(labelName, 1, 1);
+                grid.add(textName, 2, 1);
+                grid.add(labelTime, 1, 2);
+                grid.add(textTime, 2, 2);
+                grid.add(buttonOk, 2, 3);
+
+                dialog.getDialogPane().setContent(grid);
+                dialog.showAndWait();
+
+                textName.setEditable(true);
+                textTime.setEditable(true);
+            }
+        }
+    }
+
+    //Tillfällig ButtonOkHandler för showconnections
+    //senare lägga in villkor i första ButtonOkHandler
+    //och lägga in detta där på något vis
+    class ButtonOkHandler2 implements EventHandler<ActionEvent>{
+        @Override
+        public void handle(ActionEvent event){
+            dialog.close();
+        }
     }
 
     public static void main(String [] args){
