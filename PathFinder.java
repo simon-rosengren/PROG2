@@ -33,28 +33,31 @@ import java.io.*;
 import java.util.*;
 
 public class PathFinder extends Application {
-    public static final int PLACE_NAME_X = 10;
-    public static final int PLACE_NAME_Y = 12;
+    private static final int PLACE_NAME_X = 10;
+    private static final int PLACE_NAME_Y = 12;
     private Stage primaryStage;
     private BorderPane root = new BorderPane();
     private VBox file = new VBox();
-    private Pane center;
-    private ImageView newMapImgView;
-    private Image newMapImg;
-    private boolean changed = false;
-    private ArrayList<Place> markedPlaces = new ArrayList<>();
-    private Button btnFindPath;
-    private Button btnShowConnection;
-    private Button btnNewPlace;
-    private Button btnNewConnection;
-    private Button btnChangeConnection;
+    private Pane center = new Pane();
     private Pane outputArea = new Pane();
+
+    private Image newMapImg = new Image("file:europa.gif");
+    private ImageView newMapImgView = new ImageView(newMapImg);
+    private ArrayList<Place> markedPlaces = new ArrayList<>();
+    private Button btnFindPath = new Button("Find Path");
+    private Button btnShowConnection = new Button("Show Connection");
+    private Button btnNewPlace = new Button("New Place");
+    private Button btnNewConnection = new Button("New Connection");
+    private Button btnChangeConnection = new Button("Change Connection");
     private Dialog<Pair<String, Integer>> dialog = new Dialog<>();
+    private ListGraph<Place> listGraph = new ListGraph<Place>();
+
     private TextField textName;
     private TextField textTime;
-    private ListGraph<Place> listGraph = new ListGraph<Place>();
-    private Canvas canvas;
-    private GraphicsContext gc;
+    private Canvas canvas = new Canvas(newMapImg.getWidth(), newMapImg.getHeight());
+    private GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
+    private boolean changed = false;
+    private boolean isFirstNewMap = true;
     private boolean isNewConnection;
     private boolean isShowConnection;
     private boolean isChangedConnection;
@@ -63,17 +66,9 @@ public class PathFinder extends Application {
         this.primaryStage = primaryStage;
         primaryStage.setTitle("PathFinder");
 
-        newMapImg = new Image("file:europa.gif");
-        newMapImgView = new ImageView(newMapImg);
-        canvas = new Canvas(newMapImg.getWidth(), newMapImg.getHeight());
-        gc = canvas.getGraphicsContext2D();
-
-        setFileBar();
-        setFlowPane();
+        setId();
         setTextInputDialog();
 
-        outputArea.setPrefSize(newMapImg.getWidth(), newMapImg.getHeight());
-        center = new Pane();
         root.setCenter(center);
 
         Scene scene = new Scene(new VBox(file, root), 1000, 500);
@@ -82,9 +77,10 @@ public class PathFinder extends Application {
         primaryStage.setOnCloseRequest(new ExitHandler());
     }
 
-    public void setFileBar(){
+    public void setId(){
+        outputArea.setPrefSize(newMapImg.getWidth(), newMapImg.getHeight());
+
         MenuBar menu = new MenuBar();
-        file = new VBox();
         file.getChildren().add(menu);
         Menu menuFile = new Menu("File");
         menu.getMenus().add(menuFile);
@@ -105,26 +101,19 @@ public class PathFinder extends Application {
         menuExit.setOnAction(new ExitItemHandler());
 
         menuFile.getItems().addAll(menuNewMap, menuOpenFile, menuSaveFile, menuSaveImage, menuExit);
-    }
 
-    public void setFlowPane(){
-        btnFindPath = new Button("Find Path");
         btnFindPath.setDisable(true);
         btnFindPath.setOnAction(new FindPathHandler());
 
-        btnShowConnection = new Button("Show Connection");
         btnShowConnection.setDisable(true);
         btnShowConnection.setOnAction(new ShowConnectionHandler());
 
-        btnNewPlace = new Button("New Place");
         btnNewPlace.setDisable(true);
         btnNewPlace.setOnAction(new NewPlaceHandler());
 
-        btnNewConnection = new Button("New Connection");
         btnNewConnection.setDisable(true);
         btnNewConnection.setOnAction(new NewConnectionHandler());
 
-        btnChangeConnection = new Button("Change Connection");
         btnChangeConnection.setDisable(true);
         btnChangeConnection.setOnAction(new ChangeConnectionHandler());
 
@@ -160,18 +149,23 @@ public class PathFinder extends Application {
     class NewMapHandler implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
-            center.getChildren().add(newMapImgView);
-            primaryStage.setHeight(newMapImg.getHeight());
-            primaryStage.setWidth(newMapImg.getWidth());
+            if (isFirstNewMap){
+                center.getChildren().add(newMapImgView);
+                primaryStage.setHeight(newMapImg.getHeight());
+                primaryStage.setWidth(newMapImg.getWidth());
 
-            center.getChildren().add(canvas);
-            center.getChildren().add(outputArea);
-
+                center.getChildren().add(canvas);
+                center.getChildren().add(outputArea);
+            } else{
+                outputArea.getChildren().removeAll(listGraph.getNodes());
+                graphicsContext.clearRect(0,0, canvas.getWidth(), canvas.getHeight());
+            }
             btnFindPath.setDisable(false);
             btnShowConnection.setDisable(false);
             btnNewPlace.setDisable(false);
             btnNewConnection.setDisable(false);
             btnChangeConnection.setDisable(false);
+            isFirstNewMap = false;
         }
     }
     /*
@@ -308,7 +302,7 @@ public class PathFinder extends Application {
                 newPlace.setOnMouseClicked(new MarkClickHandler());
                 listGraph.add(newPlace);
                 outputArea.getChildren().add(newPlace);
-                gc.strokeText(newPlace.getName(), x + PLACE_NAME_X, y + PLACE_NAME_Y);
+                graphicsContext.strokeText(newPlace.getName(), x + PLACE_NAME_X, y + PLACE_NAME_Y);
             }
             outputArea.setOnMouseClicked(null);
         }
@@ -332,11 +326,9 @@ public class PathFinder extends Application {
         @Override
         public void handle (ActionEvent event){
             isNewConnection = true;
+
             if(markedPlaces.size() < 2){
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error!");
-                alert.setHeaderText("Two places must be selected!");
-                alert.showAndWait();
+                twoPlacesMustBeSelectedWarning();
             } else if(listGraph.getEdgeBetween(markedPlaces.get(0), markedPlaces.get(1)) != null){
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error!");
@@ -384,55 +376,38 @@ public class PathFinder extends Application {
                 alert.showAndWait();
             } else if (isNewConnection){
                 listGraph.connect(from, to, textName.getText(), Integer.parseInt(textTime.getText()));
-                gc.setLineWidth(4);
-                gc.strokeLine(from.getCenterX(), from.getCenterY(), to.getCenterX(), to.getCenterY());
-                gc.setLineWidth(1);
+                graphicsContext.setLineWidth(4);
+                graphicsContext.strokeLine(from.getCenterX(), from.getCenterY(), to.getCenterX(), to.getCenterY());
+                graphicsContext.setLineWidth(1);
                 dialog.close();
-                markedPlaces.clear();
-                from.unmarkPlace();
-                to.unmarkPlace();
-                textName.setText(null);
-                textTime.setText(null);
+                clearMarkedPlaces(to, from);
+                clearTextFields();
             } else if (isShowConnection){
                 dialog.close();
-                markedPlaces.clear();
-                from.unmarkPlace();
-                to.unmarkPlace();
+                clearMarkedPlaces(to, from);
             } else if(isChangedConnection){
                 int newWeight = Integer.parseInt(textTime.getText());
                 listGraph.setConnectionWeight(markedPlaces.get(0), markedPlaces.get(1), newWeight);
                 dialog.close();
-                markedPlaces.clear();
-                from.unmarkPlace();
-                to.unmarkPlace();
+                clearMarkedPlaces(to, from);
             }
         }
     }
 
-    // ”Show Connection” visar uppgifter om förbindelsen mellan de två valda platserna
-    // Fönstret med uppgifter om förbindelsen kan t.ex. se ut så här
-    // (obs. att både textfälten är ickeediterbara):
     class ShowConnectionHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
             isShowConnection = true;
             if(markedPlaces.size() < 2) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error!");
-                alert.setHeaderText("Two places must be selected!");
-                alert.showAndWait();
+                twoPlacesMustBeSelectedWarning();
             } else if(listGraph.getEdgeBetween(markedPlaces.get(0), markedPlaces.get(1)) == null){
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error!");
-                alert.setHeaderText("There is no connection between " + markedPlaces.get(0).getName() + " and " + markedPlaces.get(1).getName());
-                alert.showAndWait();
+                noConnectionWarning();
             } else{
-                dialog.setHeaderText("Connection from " + markedPlaces.get(0).getName() + " to " + markedPlaces.get(1).getName());
-
                 Place from = markedPlaces.get(0);
                 Place to = markedPlaces.get(1);
+                dialog.setHeaderText("Connection from " + from.getName() + " to " + to.getName());
 
-                Edge edge = listGraph.getEdgeBetween(from, to);
+                Edge<Place> edge = listGraph.getEdgeBetween(from, to);
 
                 textName.setText(edge.getName());
                 textTime.setText(Integer.toString(edge.getWeight()));
@@ -445,44 +420,60 @@ public class PathFinder extends Application {
                 textName.setEditable(true);
                 textTime.setEditable(true);
 
-                textName.setText(null);
-                textTime.setText(null);
+                clearTextFields();
                 isShowConnection = false;
             }
         }
     }
-
     class ChangeConnectionHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
             isChangedConnection = true;
             if(markedPlaces.size() < 2) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error!");
-                alert.setHeaderText("Two places must be selected!");
-                alert.showAndWait();
+                twoPlacesMustBeSelectedWarning();
             } else if(listGraph.getEdgeBetween(markedPlaces.get(0), markedPlaces.get(1)) == null) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error!");
-                alert.setHeaderText("There is no connection between " + markedPlaces.get(0).getName() + " and " + markedPlaces.get(1).getName());
-                alert.showAndWait();
+                noConnectionWarning();
             } else{
-                dialog.setHeaderText("Connection from " + markedPlaces.get(0).getName() + " to " + markedPlaces.get(1).getName());
                 Place from = markedPlaces.get(0);
                 Place to = markedPlaces.get(1);
 
-                Edge edge = listGraph.getEdgeBetween(from, to);
+                dialog.setHeaderText("Connection from " + from.getName() + " to " + to.getName());
+
+                Edge<Place> edge = listGraph.getEdgeBetween(from, to);
 
                 textName.setText(edge.getName());
                 textName.setEditable(false);
                 dialog.showAndWait();
 
                 textName.setEditable(true);
-                textName.setText(null);
-                textTime.setText(null);
+                clearTextFields();
                 isChangedConnection = false;
             }
         }
+    }
+    public void clearTextFields(){
+        textName.setText(null);
+        textTime.setText(null);
+    }
+
+    public void twoPlacesMustBeSelectedWarning(){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error!");
+        alert.setHeaderText("Two places must be selected!");
+        alert.showAndWait();
+    }
+
+    public void noConnectionWarning(){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error!");
+        alert.setHeaderText("There is no connection between " + markedPlaces.get(0).getName() + " and " + markedPlaces.get(1).getName());
+        alert.showAndWait();
+    }
+
+    public void clearMarkedPlaces(Place to, Place from){
+        markedPlaces.clear();
+        to.unmarkPlace();
+        from.unmarkPlace();
     }
 
     //Fortsätta här
