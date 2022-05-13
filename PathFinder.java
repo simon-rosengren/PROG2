@@ -150,7 +150,6 @@ public class PathFinder extends Application {
 
         dialog.getDialogPane().setContent(grid);
     }
-    
 
     class NewMapHandler implements EventHandler<ActionEvent> {
         @Override
@@ -448,7 +447,8 @@ public class PathFinder extends Application {
         public void handle(ActionEvent event){
             Place from = markedPlaces.get(0);
             Place to = markedPlaces.get(1);
-            if(textName.getText().isEmpty() || textName.getText().matches(".*[0-9].*") || !textTime.getText().matches(".*[0-9].*")){
+            if(textName.getText().isEmpty() || textName.getText().matches(".*[0-9].*")
+                    || !textTime.getText().matches(".*[0-9].*")){
                 alertWarning.setHeaderText("Name cannot be empty or contain numbers and Time cannot be letters!");
                 alertWarning.showAndWait();
             } else if (isNewConnection){
