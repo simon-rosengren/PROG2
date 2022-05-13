@@ -11,6 +11,7 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -97,7 +98,7 @@ public class PathFinder extends Application {
         //menuOpenFile.setOnAction(new OpenHandler());
 
         MenuItem menuSaveFile = new MenuItem("Save");
-        //menuSaveFile.setOnAction(new SaveHandler());
+        menuSaveFile.setOnAction(new SaveHandler());
 
         MenuItem menuSaveImage = new MenuItem("Save Image");
         menuSaveImage.setOnAction(new SaveImageHandler());
@@ -220,7 +221,7 @@ public class PathFinder extends Application {
     }
     */
 
-    /*
+
     class SaveHandler implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
@@ -229,44 +230,44 @@ public class PathFinder extends Application {
             save();
         }
     }
-    */
 
-    /*
+    //”Save” ska spara data om objekten på en textfil med namnet ”europa.graph” på
+    //följande format: först ska det vara en rad med URL till bildfilen med kartan, därefter
+    //ska det vara en lång rad med semikolonseparerade uppgifter om noder, och
+    //därefter flera rader med uppgifter om förbindelserna, en förbindelse per rad.
+    //Uppgifter om noder ska omfatta nodens namn, nodens x-koordinat och nodens ykoordinat, separerade med semikolon. Raderna med uppgifter om förbindelserna
+    //ska för varje förbindelse innehålla namnet på från-noden, namnet på till-noden,
+    //namnet på förbindelsen och förbindelsens vikt, separerade med semikolon.
+    //Ett exempel på en sådan fil ges här (obs att det inte finns några mellanslag efter
+    //semikolon):
     private void save(){
         try{
-            //inte spara objekt, spara text
-            FileOutputStream outStream = new FileOutputStream("europa.graph");
-            ObjectOutputStream out = new ObjectOutputStream(outStream);
-            out.writeObject(places);
-            out.close();
-            outStream.close();
-            //Använda isUnsavedChanges
-            changed = false;
-
-
-            //Josefs exempel med spara post it lappar
-            FileWriter file = new FileWriter("notes.txt");
+            FileWriter file = new FileWriter("europa.graph");
             PrintWriter out = new PrintWriter(file);
-            for(Node node : center.getChildren()){
-                PostItLapp lapp = (PostItLapp)node;
-                out.println(lapp.getLayoutX());
-                out.println(lapp.getLayoutY());
-                out.println(lapp.getText());
-                out.println("-".repeat(20));
+            out.println("file: europa.gif");
+            for(Node node : outputArea.getChildren()){
+                if(node instanceof Place){
+                    Place place = (Place)node;
+                    out.print(place + ";");
+                    out.format("%.1f", place.getCenterX());
+                    out.print(";");
+                    out.format("%.1f", place.getCenterY());
+                    out.print(";");
+                }
+            }
+            for(Place place : listGraph.getNodes()){
+                for(Edge edge : listGraph.getEdgesFrom(place)){
+                    out.print("\n" + place + ";");
+                    out.print(edge.getDestination() + ";" + edge.getName() + ";" + edge.getWeight());
+                }
             }
             out.close();
             file.close();
-
-
-        }   catch(FileNotFoundException exception){
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Kan inte öppna filen!");
-            alert.showAndWait();
-        }   catch(IOException exception) {
+        } catch(IOException exception){
             Alert alert = new Alert(Alert.AlertType.ERROR, "IO_fel_ " + exception.getMessage());
             alert.showAndWait();
         }
     }
-    */
 
     class SaveImageHandler implements EventHandler<ActionEvent>{
         @Override
@@ -315,14 +316,38 @@ public class PathFinder extends Application {
         }
     }
 
-    //INTE KLAR
+    //”Find Path” används för att söka igenom grafen efter en väg mellan de två valda
+    //platserna. Detta sker genom att programmet använder sig av den relevanta
+    //metoden i graf-klassen och skriver ut resultatet i en dialogruta. Dialogrutan ska
+    //innehålla all relevant information om resan, alltså var man börjar och slutar, vilka
+    //platser och förbindelser som passeras, hur lång tid varje delsträcka tar samt hur lång
+    //tid resan tar totalt:
+
+    //Om det inte finns någon väg mellan de två platserna ska det istället dyka upp en
+    //dialogruta som meddelar detta.
+    //Obs att det inte är bestämt i uppgiften vilken väg som visas av ”Find Path”: det kan
+    //vara vilken väg som helst, den kortaste vägen eller den snabbaste vägen. Det beror
+    //på hur du har löst metoden ListGraph.getPath() i första delen av
+    //inlämningsuppgiften och är alltså valfritt.
     class FindPathHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
+            StringBuilder contentText = new StringBuilder();
+            List<Edge<Place>> linkedList = listGraph.getPath(markedPlaces.get(0), markedPlaces.get(1));
+            int total = 0;
+
+            for(int i = 0; i < linkedList.size(); i++){
+                contentText.append(linkedList.get(i).toString()).append("\n");
+                int weight = linkedList.get(i).getWeight();
+                total += weight;
+            }
+            contentText.append("Total: ").append(total);
+
             alertInformation.setTitle("Message");
             alertInformation.setHeaderText("The Path from " + markedPlaces.get(0).getName() + " to " + markedPlaces.get(1).getName());
-            alertInformation.setContentText("I have a great message for you!");
+            alertInformation.setContentText(contentText.toString());
             alertInformation.showAndWait();
+            clearMarkedPlaces(markedPlaces.get(0), markedPlaces.get(1));
         }
     }
 
@@ -437,8 +462,8 @@ public class PathFinder extends Application {
 
                 textName.setEditable(true);
                 clearTextFields();
-                isChangedConnection = false;
             }
+            isChangedConnection = false;
         }
     }
 
@@ -463,10 +488,15 @@ public class PathFinder extends Application {
                 dialog.close();
                 clearMarkedPlaces(to, from);
             } else if(isChangedConnection){
-                int newWeight = Integer.parseInt(textTime.getText());
-                listGraph.setConnectionWeight(markedPlaces.get(0), markedPlaces.get(1), newWeight);
-                dialog.close();
-                clearMarkedPlaces(to, from);
+                if(textTime.getText() == null){
+                    alertWarning.setHeaderText("Time cannot be empty!");
+                    alertWarning.showAndWait();
+                } else{
+                    int newWeight = Integer.parseInt(textTime.getText());
+                    listGraph.setConnectionWeight(markedPlaces.get(0), markedPlaces.get(1), newWeight);
+                    dialog.close();
+                    clearMarkedPlaces(to, from);
+                }
             }
         }
     }

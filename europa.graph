@@ -1,0 +1,6 @@
+file: europa.gif
+Stockholm;274,7;62,0;Berlin;190,7;126,7;Oslo;296,0;127,3;
+Stockholm;Oslo;Båt;5
+Stockholm;Berlin;Tåg;1
+Berlin;Stockholm;Tåg;1
+Oslo;Stockholm;Båt;5

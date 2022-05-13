@@ -28,4 +28,9 @@ public class Place extends Circle {
     public boolean isMarked(){
         return isMarked;
     }
+
+    @Override
+    public String toString(){
+        return name;
+    }
 }
