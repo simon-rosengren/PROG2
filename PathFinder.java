@@ -55,9 +55,7 @@ public class PathFinder extends Application {
     private Canvas canvas = new Canvas(image.getWidth(), image.getHeight());
     private GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
     private boolean isFirstNewMap = true;
-    private boolean isNewConnection;
-    private boolean isShowConnection;
-    private boolean isChangedConnection;
+    private int connectionType;
     private Alert alertWarning = new Alert(Alert.AlertType.WARNING);
     private Alert alertConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
     private Alert alertInformation = new Alert(Alert.AlertType.INFORMATION);
@@ -354,7 +352,7 @@ public class PathFinder extends Application {
     class ShowConnectionHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
-            isShowConnection = true;
+            connectionType = 3;
             if(markedPlaces.size() < 2) {
                 twoPlacesMustBeSelectedWarning();
             } else if(listGraph.getEdgeBetween(markedPlaces.get(0), markedPlaces.get(1)) == null){
@@ -378,7 +376,6 @@ public class PathFinder extends Application {
                 textTime.setEditable(true);
 
                 clearTextFields();
-                isShowConnection = false;
             }
         }
     }
@@ -425,7 +422,7 @@ public class PathFinder extends Application {
     class NewConnectionHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle (ActionEvent event){
-            isNewConnection = true;
+            connectionType = 1;
             if(markedPlaces.size() < 2){
                 twoPlacesMustBeSelectedWarning();
             } else if(listGraph.getEdgeBetween(markedPlaces.get(0), markedPlaces.get(1)) != null){
@@ -436,14 +433,13 @@ public class PathFinder extends Application {
                 dialog.setHeaderText("Connection from " + markedPlaces.get(0).getName() + " to " + markedPlaces.get(1).getName());
                 dialog.showAndWait();
             }
-            isNewConnection = false;
         }
     }
 
     class ChangeConnectionHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
-            isChangedConnection = true;
+            connectionType = 2;
             if(markedPlaces.size() < 2) {
                 twoPlacesMustBeSelectedWarning();
             } else if(listGraph.getEdgeBetween(markedPlaces.get(0), markedPlaces.get(1)) == null) {
@@ -463,7 +459,6 @@ public class PathFinder extends Application {
                 textName.setEditable(true);
                 clearTextFields();
             }
-            isChangedConnection = false;
         }
     }
 
@@ -472,30 +467,39 @@ public class PathFinder extends Application {
         public void handle(ActionEvent event){
             Place from = markedPlaces.get(0);
             Place to = markedPlaces.get(1);
-            if(textName.getText().isEmpty() || textName.getText().matches(".*[0-9].*")
+            if(textTime.getText() == null || textName.getText() == null
+                    || textName.getText().isEmpty()
+                    || textTime.getText().isEmpty()
+                    || textName.getText().matches(".*[0-9].*")
                     || !textTime.getText().matches(".*[0-9].*")){
                 alertWarning.setHeaderText("Name cannot be empty or contain numbers and Time cannot be letters!");
                 alertWarning.showAndWait();
-            } else if (isNewConnection){
-                listGraph.connect(from, to, textName.getText(), Integer.parseInt(textTime.getText()));
-                graphicsContext.setLineWidth(4);
-                graphicsContext.strokeLine(from.getCenterX(), from.getCenterY(), to.getCenterX(), to.getCenterY());
-                graphicsContext.setLineWidth(1);
-                dialog.close();
-                clearMarkedPlaces(to, from);
-                clearTextFields();
-            } else if (isShowConnection){
-                dialog.close();
-                clearMarkedPlaces(to, from);
-            } else if(isChangedConnection){
-                if(textTime.getText() == null){
-                    alertWarning.setHeaderText("Time cannot be empty!");
-                    alertWarning.showAndWait();
-                } else{
-                    int newWeight = Integer.parseInt(textTime.getText());
-                    listGraph.setConnectionWeight(markedPlaces.get(0), markedPlaces.get(1), newWeight);
-                    dialog.close();
-                    clearMarkedPlaces(to, from);
+            } else {
+                switch (connectionType) {
+                    case 1:
+                        listGraph.connect(from, to, textName.getText(), Integer.parseInt(textTime.getText()));
+                        graphicsContext.setLineWidth(4);
+                        graphicsContext.strokeLine(from.getCenterX(), from.getCenterY(), to.getCenterX(), to.getCenterY());
+                        graphicsContext.setLineWidth(1);
+                        dialog.close();
+                        clearMarkedPlaces(to, from);
+                        clearTextFields();
+                        break;
+                    case 2:
+                        if(textTime.getText() == null){
+                            alertWarning.setHeaderText("Time cannot be empty!");
+                            alertWarning.showAndWait();
+                        } else{
+                            int newWeight = Integer.parseInt(textTime.getText());
+                            listGraph.setConnectionWeight(markedPlaces.get(0), markedPlaces.get(1), newWeight);
+                            dialog.close();
+                            clearMarkedPlaces(to, from);
+                        }
+                        break;
+                    case 3:
+                        dialog.close();
+                        clearMarkedPlaces(to, from);
+                        break;
                 }
             }
         }
