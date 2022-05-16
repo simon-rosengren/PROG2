@@ -6,19 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="cb466061-47ff-46c2-aa34-15be9bbba21a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DialogConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/DialogConnection.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PathFinder.java" beforeDir="false" afterPath="$PROJECT_DIR$/PathFinder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/europa.graph" beforeDir="false" afterPath="$PROJECT_DIR$/europa.graph" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/DialogConnection.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/DialogConnection.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ChangeConnectionHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ChangeConnectionHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$FindPathHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$FindPathHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewConnectionHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewConnectionHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewMapHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewMapHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewPlaceClickHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewPlaceClickHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewPlaceHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewPlaceHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ShowConnectionHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ShowConnectionHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/europa.graph" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/europa.graph" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,16 +34,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\idaam\Pictures\Programmering 2 (PROG2)\PROG2\PROG2" />
@@ -156,7 +143,8 @@
       <workItem from="1652527229997" duration="928000" />
       <workItem from="1652528182494" duration="17000" />
       <workItem from="1652699595191" duration="375000" />
-      <workItem from="1652701408977" duration="11964000" />
+      <workItem from="1652701408977" duration="12259000" />
+      <workItem from="1652713715688" duration="15000" />
     </task>
     <servers />
   </component>
