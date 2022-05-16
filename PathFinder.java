@@ -54,7 +54,7 @@ public class PathFinder extends Application {
     private TextField textTime = new TextField();
     private Canvas canvas = new Canvas(image.getWidth(), image.getHeight());
     private GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
-    private boolean isFirstNewMap = true;
+    private boolean isFirstMap = true;
     private int connectionType;
     private Alert alertWarning = new Alert(Alert.AlertType.WARNING);
     private Alert alertConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
@@ -93,7 +93,7 @@ public class PathFinder extends Application {
         menuNewMap.setOnAction(new NewMapHandler());
 
         MenuItem menuOpenFile = new MenuItem("Open");
-        //menuOpenFile.setOnAction(new OpenHandler());
+        menuOpenFile.setOnAction(new OpenHandler());
 
         MenuItem menuSaveFile = new MenuItem("Save");
         menuSaveFile.setOnAction(new SaveHandler());
@@ -153,7 +153,7 @@ public class PathFinder extends Application {
     class NewMapHandler implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
-            if (isFirstNewMap){
+            if (isFirstMap){
                 outputArea.getChildren().add(imageView);
                 primaryStage.setHeight(image.getHeight());
                 primaryStage.setWidth(image.getWidth());
@@ -172,15 +172,15 @@ public class PathFinder extends Application {
             btnNewPlace.setDisable(false);
             btnNewConnection.setDisable(false);
             btnChangeConnection.setDisable(false);
-            isFirstNewMap = false;
+            isFirstMap = false;
         }
     }
-    /*
+
+    //INTE KLAR
     class OpenHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
-        //Använda isUnsavedChanges
-            if (changed){
+            if (listGraph.getNodes().isEmpty()){
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setContentText("Unsaved changes, open anyway?");
                 Optional<ButtonType> result = alert.showAndWait();
@@ -191,10 +191,9 @@ public class PathFinder extends Application {
             if (file == null){
                 return;
             }
-            open();
+            //open();
         }
     }
-    */
 
     /*
     private void open(){
@@ -204,8 +203,6 @@ public class PathFinder extends Application {
             places = (Map) in.readObject();
             in.close();
             inStream.close();
-            //Använda isUnsavedChanges
-            changed = false;
         } catch (FileNotFoundException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Can't open file!");
             alert.showAndWait();
@@ -218,7 +215,6 @@ public class PathFinder extends Application {
         }
     }
     */
-
 
     class SaveHandler implements EventHandler<ActionEvent> {
         @Override
@@ -254,7 +250,7 @@ public class PathFinder extends Application {
                 }
             }
             for(Place place : listGraph.getNodes()){
-                for(Edge edge : listGraph.getEdgesFrom(place)){
+                for(Edge<Place> edge : listGraph.getEdgesFrom(place)){
                     out.print("\n" + place + ";");
                     out.print(edge.getDestination() + ";" + edge.getName() + ";" + edge.getWeight());
                 }
@@ -334,9 +330,9 @@ public class PathFinder extends Application {
             List<Edge<Place>> linkedList = listGraph.getPath(markedPlaces.get(0), markedPlaces.get(1));
             int total = 0;
 
-            for(int i = 0; i < linkedList.size(); i++){
-                contentText.append(linkedList.get(i).toString()).append("\n");
-                int weight = linkedList.get(i).getWeight();
+            for (Edge<Place> placeEdge : linkedList) {
+                contentText.append(placeEdge.toString()).append("\n");
+                int weight = placeEdge.getWeight();
                 total += weight;
             }
             contentText.append("Total: ").append(total);
