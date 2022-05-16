@@ -42,8 +42,8 @@ public class DialogConnection extends Alert {
         time.setText(Integer.toString(edge.getWeight()));
     }
 
-    public void setTextChange(Edge<Place> edge){
-        name.setText(edge.getName());
+    public void setTextChange(String edge){
+        name.setText(edge);
     }
 
     public String getName(){

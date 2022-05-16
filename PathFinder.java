@@ -162,19 +162,15 @@ public class PathFinder extends Application {
     class OpenHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
-            if (listGraph.getNodes().isEmpty()){
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setContentText("Unsaved changes, open anyway?");
-                Optional<ButtonType> result = alert.showAndWait();
-                if (result.isPresent() && !result.get().equals(ButtonType.OK))
+            if (isChanged){
+                alertConfirmation.setContentText("Unsaved changes, open anyway?");
+                Optional<ButtonType> result = alertConfirmation.showAndWait();
+                if (result.isPresent() && result.get().equals(ButtonType.OK)){
+                    open();
+                } else{
                     return;
+                }
             }
-
-            if (vBoxFile == null){
-                return;
-            }
-
-            open();
         }
     }
 
@@ -286,19 +282,6 @@ public class PathFinder extends Application {
         }
     }
 
-    //”Find Path” används för att söka igenom grafen efter en väg mellan de två valda
-    //platserna. Detta sker genom att programmet använder sig av den relevanta
-    //metoden i graf-klassen och skriver ut resultatet i en dialogruta. Dialogrutan ska
-    //innehålla all relevant information om resan, alltså var man börjar och slutar, vilka
-    //platser och förbindelser som passeras, hur lång tid varje delsträcka tar samt hur lång
-    //tid resan tar totalt:
-
-    //Om det inte finns någon väg mellan de två platserna ska det istället dyka upp en
-    //dialogruta som meddelar detta.
-    //Obs att det inte är bestämt i uppgiften vilken väg som visas av ”Find Path”: det kan
-    //vara vilken väg som helst, den kortaste vägen eller den snabbaste vägen. Det beror
-    //på hur du har löst metoden ListGraph.getPath() i första delen av
-    //inlämningsuppgiften och är alltså valfritt.
     class FindPathHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
@@ -401,12 +384,20 @@ public class PathFinder extends Application {
 
                 Optional<ButtonType> result = dialogNewConnection.showAndWait();
                 if(result.isPresent() && result.get() == ButtonType.OK){
-                    listGraph.connect(from, to, dialogNewConnection.getName(), Integer.parseInt(dialogNewConnection.getTime()));
-                    graphicsContext.setLineWidth(4);
-                    graphicsContext.strokeLine(from.getCenterX(), from.getCenterY(), to.getCenterX(), to.getCenterY());
-                    graphicsContext.setLineWidth(1);
-                    clearMarkedPlaces(to, from);
-                    isChanged = true;
+                    String name = dialogNewConnection.getName();
+                    String time = dialogNewConnection.getTime();
+
+                    if(name.isEmpty() || time.isEmpty() || name.matches(".*[0-9].*") || !time.matches(".*[0-9].*")){
+                        alertWarning.setHeaderText("Name and Time cannot be empty, Name cannot contain numbers\nand Time cannot contain letters!");
+                        alertWarning.showAndWait();
+                    } else{
+                        listGraph.connect(from, to, dialogNewConnection.getName(), Integer.parseInt(dialogNewConnection.getTime()));
+                        graphicsContext.setLineWidth(4);
+                        graphicsContext.strokeLine(from.getCenterX(), from.getCenterY(), to.getCenterX(), to.getCenterY());
+                        graphicsContext.setLineWidth(1);
+                        clearMarkedPlaces(to, from);
+                        isChanged = true;
+                    }
                 }
             }
         }
@@ -426,14 +417,16 @@ public class PathFinder extends Application {
 
                 Edge<Place> edge = listGraph.getEdgeBetween(from, to);
 
-                dialogChangeConnection.setTextChange(edge);
+                dialogChangeConnection.setTextChange(edge.getName());
                 dialogChangeConnection.setEditableName(false);
                 dialogChangeConnection.setEditableTime(true);
 
                 Optional<ButtonType> result = dialogChangeConnection.showAndWait();
                 if(result.isPresent() && result.get() == ButtonType.OK){
-                    if(dialogChangeConnection.getTime().isEmpty()){
-                        alertWarning.setHeaderText("Time cannot be empty!");
+                    String time = dialogChangeConnection.getTime();
+
+                    if(time.isEmpty() || !time.matches(".*[0-9].*")){
+                        alertWarning.setHeaderText("Time cannot be empty or contain letters!");
                         alertWarning.showAndWait();
                     } else{
                         int newWeight = Integer.parseInt(dialogChangeConnection.getTime());
