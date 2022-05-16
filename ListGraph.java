@@ -209,6 +209,8 @@ public class ListGraph<T> implements Graph<T>, Serializable {
         return Collections.unmodifiableList(path);
     }
 
+
+
     //returnerar en lång sträng med strängar tagna från nodernas
     //toString-metoder och kanternas toString-metoder, gärna med
     //radbrytningar så att man får information om en nod per rad
@@ -220,5 +222,9 @@ public class ListGraph<T> implements Graph<T>, Serializable {
             stringBuilder.append(city).append(": ").append(nodes.get(city)).append("\n");
         }
         return stringBuilder.toString();
+    }
+
+    public void clear() {
+        nodes.clear();
     }
 }

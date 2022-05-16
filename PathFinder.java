@@ -27,7 +27,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import javafx.util.Pair;
 
 import javax.imageio.ImageIO;
 import java.io.*;
@@ -36,9 +35,11 @@ import java.util.*;
 public class PathFinder extends Application {
     private static final int PLACE_NAME_X = 10;
     private static final int PLACE_NAME_Y = 12;
+    public static final int MENY_FILE_HEIGHT = 100;
+    public static final int MENY_FILE_WIDTH = 20;
     private Stage primaryStage;
     private BorderPane root = new BorderPane();
-    private VBox file = new VBox();
+    private VBox vBoxFile = new VBox();
     private Pane outputArea = new Pane();
     private Image image = new Image("file:europa.gif");
     private ImageView imageView = new ImageView(image);
@@ -48,14 +49,11 @@ public class PathFinder extends Application {
     private Button btnNewConnection = new Button("New Connection");
     private Button btnChangeConnection = new Button("Change Connection");
     private ArrayList<Place> markedPlaces = new ArrayList<>();
-    private Dialog<Pair<String, Integer>> dialog = new Dialog<>();
     private ListGraph<Place> listGraph = new ListGraph<>();
-    private TextField textName = new TextField();
-    private TextField textTime = new TextField();
     private Canvas canvas = new Canvas(image.getWidth(), image.getHeight());
     private GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
     private boolean isFirstMap = true;
-    private int connectionType;
+    private boolean isChanged = false;
     private Alert alertWarning = new Alert(Alert.AlertType.WARNING);
     private Alert alertConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
     private Alert alertInformation = new Alert(Alert.AlertType.INFORMATION);
@@ -67,13 +65,12 @@ public class PathFinder extends Application {
         primaryStage.setTitle("PathFinder");
 
         setId();
-        setTextInputDialog();
 
         alertError.setTitle("Error!");
         alertConfirmation.setTitle("Warning!");
         alertWarning.setTitle("Warning!");
 
-        Scene scene = new Scene(new VBox(file, root), 604, 100);
+        Scene scene = new Scene(new VBox(vBoxFile, root), 604, 100);
         primaryStage.setScene(scene);
         primaryStage.show();
         primaryStage.setOnCloseRequest(new ExitHandler());
@@ -86,7 +83,7 @@ public class PathFinder extends Application {
         MenuBar menu = new MenuBar();
         Menu menuFile = new Menu("File");
 
-        file.getChildren().add(menu);
+        vBoxFile.getChildren().add(menu);
         menu.getMenus().add(menuFile);
 
         MenuItem menuNewMap = new MenuItem("New Map");
@@ -129,43 +126,22 @@ public class PathFinder extends Application {
         top.getChildren().addAll(btnFindPath, btnShowConnection, btnNewPlace, btnNewConnection, btnChangeConnection);
     }
 
-
-    public void setTextInputDialog(){
-        dialog.setTitle("Connection");
-
-        Label labelName = new Label("Name: ");
-        Label labelTime = new Label("Time: ");
-
-        Button buttonOk = new Button("OK");
-        buttonOk.setOnAction(new ButtonOkHandler());
-        dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
-
-        GridPane grid = new GridPane();
-        grid.add(labelName, 1, 1);
-        grid.add(textName, 2, 1);
-        grid.add(labelTime, 1, 2);
-        grid.add(textTime, 2, 2);
-        grid.add(buttonOk, 2, 3);
-
-        dialog.getDialogPane().setContent(grid);
-    }
-
     class NewMapHandler implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
             if (isFirstMap){
                 outputArea.getChildren().add(imageView);
-                primaryStage.setHeight(image.getHeight());
-                primaryStage.setWidth(image.getWidth());
+                primaryStage.setHeight(image.getHeight() + MENY_FILE_HEIGHT);
+                primaryStage.setWidth(image.getWidth() + MENY_FILE_WIDTH);
                 outputArea.getChildren().add(canvas);
-            } else if (!listGraph.getNodes().isEmpty()){
+            } else if (isChanged){
                 alertConfirmation.setHeaderText("Unsaved changes, continue anyway?");
                 Optional<ButtonType> result = alertConfirmation.showAndWait();
                 if (result.isPresent() && result.get() == ButtonType.OK) {
-                    outputArea.getChildren().removeAll(listGraph.getNodes());
-                    graphicsContext.clearRect(0,0, canvas.getWidth(), canvas.getHeight());
-                    listGraph.getNodes().clear();
+                    clearMap();
                 }
+            } else{
+                clearMap();
             }
             btnFindPath.setDisable(false);
             btnShowConnection.setDisable(false);
@@ -174,6 +150,12 @@ public class PathFinder extends Application {
             btnChangeConnection.setDisable(false);
             isFirstMap = false;
         }
+    }
+
+    public void clearMap(){
+        outputArea.getChildren().removeAll(listGraph.getNodes());
+        graphicsContext.clearRect(0,0, canvas.getWidth(), canvas.getHeight());
+        listGraph.clear();
     }
 
     //INTE KLAR
@@ -188,78 +170,72 @@ public class PathFinder extends Application {
                     return;
             }
 
-            if (file == null){
+            if (vBoxFile == null){
                 return;
             }
-            //open();
+
+            open();
         }
     }
 
-    /*
     private void open(){
-        try {
-            FileInputStream inStream = new FileInputStream("europa.graph");
-            ObjectInputStream in = new ObjectInputStream(inStream);
-            places = (Map) in.readObject();
+        try{
+            FileReader file = new FileReader("europa.graph");
+            BufferedReader in = new BufferedReader(file);
+            String line;
+            while ((line = in.readLine()) != null){
+                double x = Double.parseDouble(line);
+                line = in.readLine();
+                double y = Double.parseDouble(line);
+                line = in.readLine();
+                while (!line.equals(";")){
+                    line = in.readLine();
+                }
+                //Place place = new Place(name, x,y);
+                //rita ut text
+                //outputArea.getChildren().add(place);
+            }
             in.close();
-            inStream.close();
-        } catch (FileNotFoundException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Can't open file!");
+            file.close();
+        }catch(FileNotFoundException exception){
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Kan inte öppna europa.graph!");
             alert.showAndWait();
-        } catch (IOException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "IO-error " + e.getMessage());
-            alert.showAndWait();
-        } catch (ClassNotFoundException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Can't find class " + e.getMessage());
+        }catch(IOException exception){
+            Alert alert = new Alert(Alert.AlertType.ERROR, "IO_fel: " + exception.getMessage());
             alert.showAndWait();
         }
     }
-    */
 
     class SaveHandler implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
-            if (file == null)
-                return;
-            save();
-        }
-    }
-
-    //”Save” ska spara data om objekten på en textfil med namnet ”europa.graph” på
-    //följande format: först ska det vara en rad med URL till bildfilen med kartan, därefter
-    //ska det vara en lång rad med semikolonseparerade uppgifter om noder, och
-    //därefter flera rader med uppgifter om förbindelserna, en förbindelse per rad.
-    //Uppgifter om noder ska omfatta nodens namn, nodens x-koordinat och nodens ykoordinat, separerade med semikolon. Raderna med uppgifter om förbindelserna
-    //ska för varje förbindelse innehålla namnet på från-noden, namnet på till-noden,
-    //namnet på förbindelsen och förbindelsens vikt, separerade med semikolon.
-    //Ett exempel på en sådan fil ges här (obs att det inte finns några mellanslag efter
-    //semikolon):
-    private void save(){
-        try{
-            FileWriter file = new FileWriter("europa.graph");
-            PrintWriter out = new PrintWriter(file);
-            out.println("file: europa.gif");
-            for(Node node : outputArea.getChildren()){
-                if(node instanceof Place){
-                    Place place = (Place)node;
-                    out.print(place + ";");
-                    out.format("%.1f", place.getCenterX());
-                    out.print(";");
-                    out.format("%.1f", place.getCenterY());
-                    out.print(";");
+            try{
+                FileWriter file = new FileWriter("europa.graph");
+                PrintWriter out = new PrintWriter(file);
+                out.println("file: europa.gif");
+                for(Node node : outputArea.getChildren()){
+                    if(node instanceof Place){
+                        Place place = (Place)node;
+                        out.print(place + ";");
+                        out.format("%.1f", place.getCenterX());
+                        out.print(";");
+                        out.format("%.1f", place.getCenterY());
+                        out.print(";");
+                    }
                 }
-            }
-            for(Place place : listGraph.getNodes()){
-                for(Edge<Place> edge : listGraph.getEdgesFrom(place)){
-                    out.print("\n" + place + ";");
-                    out.print(edge.getDestination() + ";" + edge.getName() + ";" + edge.getWeight());
+                for(Place place : listGraph.getNodes()){
+                    for(Edge<Place> edge : listGraph.getEdgesFrom(place)){
+                        out.print("\n" + place + ";");
+                        out.print(edge.getDestination() + ";" + edge.getName() + ";" + edge.getWeight());
+                    }
                 }
+                out.close();
+                file.close();
+                isChanged = false;
+            } catch(IOException exception){
+                Alert alert = new Alert(Alert.AlertType.ERROR, "IO_fel_ " + exception.getMessage());
+                alert.showAndWait();
             }
-            out.close();
-            file.close();
-        } catch(IOException exception){
-            Alert alert = new Alert(Alert.AlertType.ERROR, "IO_fel_ " + exception.getMessage());
-            alert.showAndWait();
         }
     }
 
@@ -279,7 +255,7 @@ public class PathFinder extends Application {
 
     class ExitHandler implements EventHandler<WindowEvent> {
         @Override public void handle(WindowEvent event) {
-            if(!listGraph.getNodes().isEmpty()){
+            if(isChanged){
                 alertConfirmation.setHeaderText("Unsaved changes, exit anyway?");
                 Optional<ButtonType> result = alertConfirmation.showAndWait();
                 if (result.isPresent() && result.get() != ButtonType.OK) {
@@ -331,10 +307,11 @@ public class PathFinder extends Application {
             int total = 0;
 
             for (Edge<Place> placeEdge : linkedList) {
-                contentText.append(placeEdge.toString()).append("\n");
+                contentText.append(placeEdge.toStringEnglish()).append("\n");
                 int weight = placeEdge.getWeight();
                 total += weight;
             }
+
             contentText.append("Total: ").append(total);
 
             alertInformation.setTitle("Message");
@@ -348,30 +325,22 @@ public class PathFinder extends Application {
     class ShowConnectionHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
-            connectionType = 3;
             if(markedPlaces.size() < 2) {
                 twoPlacesMustBeSelectedWarning();
             } else if(listGraph.getEdgeBetween(markedPlaces.get(0), markedPlaces.get(1)) == null){
                 noConnectionWarning();
             } else{
-                Place from = markedPlaces.get(0);
-                Place to = markedPlaces.get(1);
-                dialog.setHeaderText("Connection from " + from.getName() + " to " + to.getName());
+                DialogConnection dialogShowConnection = new DialogConnection(markedPlaces.get(0), markedPlaces.get(1));
 
-                Edge<Place> edge = listGraph.getEdgeBetween(from, to);
+                Edge<Place> edge = listGraph.getEdgeBetween(markedPlaces.get(0), markedPlaces.get(1));
 
-                textName.setText(edge.getName());
-                textTime.setText(Integer.toString(edge.getWeight()));
+                dialogShowConnection.setText(edge);
+                dialogShowConnection.setEditableName(false);
+                dialogShowConnection.setEditableTime(false);
 
-                textName.setEditable(false);
-                textTime.setEditable(false);
+                dialogShowConnection.showAndWait();
 
-                dialog.showAndWait();
-
-                textName.setEditable(true);
-                textTime.setEditable(true);
-
-                clearTextFields();
+                clearMarkedPlaces(markedPlaces.get(0), markedPlaces.get(1));
             }
         }
     }
@@ -412,13 +381,13 @@ public class PathFinder extends Application {
                 graphicsContext.strokeText(newPlace.getName(), x + PLACE_NAME_X, y + PLACE_NAME_Y);
             }
             outputArea.setOnMouseClicked(null);
+            isChanged = true;
         }
     }
 
     class NewConnectionHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle (ActionEvent event){
-            connectionType = 1;
             if(markedPlaces.size() < 2){
                 twoPlacesMustBeSelectedWarning();
             } else if(listGraph.getEdgeBetween(markedPlaces.get(0), markedPlaces.get(1)) != null){
@@ -426,8 +395,19 @@ public class PathFinder extends Application {
                 alertError.setHeaderText("Connection already exists!");
                 alertError.showAndWait();
             } else{
-                dialog.setHeaderText("Connection from " + markedPlaces.get(0).getName() + " to " + markedPlaces.get(1).getName());
-                dialog.showAndWait();
+                Place from = markedPlaces.get(0);
+                Place to = markedPlaces.get(1);
+                DialogConnection dialogNewConnection = new DialogConnection(from, to);
+
+                Optional<ButtonType> result = dialogNewConnection.showAndWait();
+                if(result.isPresent() && result.get() == ButtonType.OK){
+                    listGraph.connect(from, to, dialogNewConnection.getName(), Integer.parseInt(dialogNewConnection.getTime()));
+                    graphicsContext.setLineWidth(4);
+                    graphicsContext.strokeLine(from.getCenterX(), from.getCenterY(), to.getCenterX(), to.getCenterY());
+                    graphicsContext.setLineWidth(1);
+                    clearMarkedPlaces(to, from);
+                    isChanged = true;
+                }
             }
         }
     }
@@ -435,75 +415,35 @@ public class PathFinder extends Application {
     class ChangeConnectionHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
-            connectionType = 2;
-            if(markedPlaces.size() < 2) {
+            if(markedPlaces.size() < 2){
                 twoPlacesMustBeSelectedWarning();
             } else if(listGraph.getEdgeBetween(markedPlaces.get(0), markedPlaces.get(1)) == null) {
                 noConnectionWarning();
             } else{
                 Place from = markedPlaces.get(0);
                 Place to = markedPlaces.get(1);
-
-                dialog.setHeaderText("Connection from " + from.getName() + " to " + to.getName());
+                DialogConnection dialogChangeConnection = new DialogConnection(from, to);
 
                 Edge<Place> edge = listGraph.getEdgeBetween(from, to);
 
-                textName.setText(edge.getName());
-                textName.setEditable(false);
-                dialog.showAndWait();
+                dialogChangeConnection.setTextChange(edge);
+                dialogChangeConnection.setEditableName(false);
+                dialogChangeConnection.setEditableTime(true);
 
-                textName.setEditable(true);
-                clearTextFields();
-            }
-        }
-    }
-
-    class ButtonOkHandler implements EventHandler<ActionEvent>{
-        @Override
-        public void handle(ActionEvent event){
-            Place from = markedPlaces.get(0);
-            Place to = markedPlaces.get(1);
-            if(textTime.getText() == null || textName.getText() == null
-                    || textName.getText().isEmpty()
-                    || textTime.getText().isEmpty()
-                    || textName.getText().matches(".*[0-9].*")
-                    || !textTime.getText().matches(".*[0-9].*")){
-                alertWarning.setHeaderText("Name cannot be empty or contain numbers and Time cannot be letters!");
-                alertWarning.showAndWait();
-            } else {
-                switch (connectionType) {
-                    case 1:
-                        listGraph.connect(from, to, textName.getText(), Integer.parseInt(textTime.getText()));
-                        graphicsContext.setLineWidth(4);
-                        graphicsContext.strokeLine(from.getCenterX(), from.getCenterY(), to.getCenterX(), to.getCenterY());
-                        graphicsContext.setLineWidth(1);
-                        dialog.close();
+                Optional<ButtonType> result = dialogChangeConnection.showAndWait();
+                if(result.isPresent() && result.get() == ButtonType.OK){
+                    if(dialogChangeConnection.getTime().isEmpty()){
+                        alertWarning.setHeaderText("Time cannot be empty!");
+                        alertWarning.showAndWait();
+                    } else{
+                        int newWeight = Integer.parseInt(dialogChangeConnection.getTime());
+                        listGraph.setConnectionWeight(from, to, newWeight);
                         clearMarkedPlaces(to, from);
-                        clearTextFields();
-                        break;
-                    case 2:
-                        if(textTime.getText() == null){
-                            alertWarning.setHeaderText("Time cannot be empty!");
-                            alertWarning.showAndWait();
-                        } else{
-                            int newWeight = Integer.parseInt(textTime.getText());
-                            listGraph.setConnectionWeight(markedPlaces.get(0), markedPlaces.get(1), newWeight);
-                            dialog.close();
-                            clearMarkedPlaces(to, from);
-                        }
-                        break;
-                    case 3:
-                        dialog.close();
-                        clearMarkedPlaces(to, from);
-                        break;
+                        isChanged = true;
+                    }
                 }
             }
         }
-    }
-
-    public void clearTextFields(){
-        textName.setText(null);
-        textTime.setText(null);
     }
 
     public void clearMarkedPlaces(Place to, Place from){
