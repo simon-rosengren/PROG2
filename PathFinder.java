@@ -13,8 +13,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
@@ -25,11 +23,14 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import javax.imageio.ImageIO;
 import java.io.*;
+import java.text.NumberFormat;
 import java.util.*;
 
 public class PathFinder extends Application {
@@ -41,8 +42,10 @@ public class PathFinder extends Application {
     private BorderPane root = new BorderPane();
     private VBox vBoxFile = new VBox();
     private Pane outputArea = new Pane();
-    private Image image = new Image("file:europa.gif");
-    private ImageView imageView = new ImageView(image);
+    private Text placeName;
+    private Line connectionLine;
+    private Image image;
+    private ImageView imageView;
     private Button btnFindPath = new Button("Find Path");
     private Button btnShowConnection = new Button("Show Connection");
     private Button btnNewPlace = new Button("New Place");
@@ -50,8 +53,7 @@ public class PathFinder extends Application {
     private Button btnChangeConnection = new Button("Change Connection");
     private ArrayList<Place> markedPlaces = new ArrayList<>();
     private ListGraph<Place> listGraph = new ListGraph<>();
-    private Canvas canvas = new Canvas(image.getWidth(), image.getHeight());
-    private GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
+    private String imageName = "file:europa.gif";
     private boolean isFirstMap = true;
     private boolean isChanged = false;
     private Alert alertWarning = new Alert(Alert.AlertType.WARNING);
@@ -78,7 +80,6 @@ public class PathFinder extends Application {
 
     public void setId(){
         root.setCenter(outputArea);
-        outputArea.setPrefSize(image.getWidth(), image.getHeight());
 
         MenuBar menu = new MenuBar();
         Menu menuFile = new Menu("File");
@@ -129,12 +130,8 @@ public class PathFinder extends Application {
     class NewMapHandler implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
-            if (isFirstMap){
-                outputArea.getChildren().add(imageView);
-                primaryStage.setHeight(image.getHeight() + MENY_FILE_HEIGHT);
-                primaryStage.setWidth(image.getWidth() + MENY_FILE_WIDTH);
-                outputArea.getChildren().add(canvas);
-            } else if (isChanged){
+            setUpNewMap();
+            if (isChanged){
                 alertConfirmation.setHeaderText("Unsaved changes, continue anyway?");
                 Optional<ButtonType> result = alertConfirmation.showAndWait();
                 if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -148,17 +145,27 @@ public class PathFinder extends Application {
             btnNewPlace.setDisable(false);
             btnNewConnection.setDisable(false);
             btnChangeConnection.setDisable(false);
+        }
+    }
+
+    public void setUpNewMap(){
+        if(isFirstMap){
+            image = new Image(imageName);
+            imageView = new ImageView(image);
+            outputArea.getChildren().add(imageView);
+            primaryStage.setHeight(image.getHeight() + MENY_FILE_HEIGHT);
+            primaryStage.setWidth(image.getWidth() + MENY_FILE_WIDTH);
+            outputArea.setPrefSize(image.getWidth(), image.getHeight());
             isFirstMap = false;
         }
     }
 
     public void clearMap(){
         outputArea.getChildren().removeAll(listGraph.getNodes());
-        graphicsContext.clearRect(0,0, canvas.getWidth(), canvas.getHeight());
+        outputArea.getChildren().removeAll(placeName, connectionLine);
         listGraph.clear();
     }
 
-    //INTE KLAR
     class OpenHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
@@ -166,30 +173,45 @@ public class PathFinder extends Application {
                 alertConfirmation.setContentText("Unsaved changes, open anyway?");
                 Optional<ButtonType> result = alertConfirmation.showAndWait();
                 if (result.isPresent() && result.get().equals(ButtonType.OK)){
+                    clearMap();
                     open();
-                } else{
-                    return;
                 }
+            } else{
+                setUpNewMap();
+                open();
             }
         }
     }
 
     private void open(){
         try{
+            Map<String, Place> convert = new HashMap<>();
             FileReader file = new FileReader("europa.graph");
             BufferedReader in = new BufferedReader(file);
             String line;
+            imageName = in.readLine();
+            String nodes = in.readLine();
+            String[] nodesArray = nodes.split(";");
+            for(int i = 0; i < nodesArray.length; i += 3){
+                Place place = new Place(nodesArray[i], Double.parseDouble(nodesArray[i + 1]), Double.parseDouble(nodesArray[i + 2]));
+                listGraph.add(place);
+                convert.put(place.getName(), place);
+                placeName = new Text(Double.parseDouble(nodesArray[i + 1]) - PLACE_NAME_X, Double.parseDouble(nodesArray[i + 2]) - PLACE_NAME_Y, place.getName());
+                outputArea.getChildren().addAll(place, placeName);
+            }
             while ((line = in.readLine()) != null){
-                double x = Double.parseDouble(line);
-                line = in.readLine();
-                double y = Double.parseDouble(line);
-                line = in.readLine();
-                while (!line.equals(";")){
-                    line = in.readLine();
+                String[] connections = line.split(";");
+                String from = connections[0];
+                String to = connections[1];
+                String name = connections[2];
+                int weight = Integer.parseInt(connections[3]);
+                Place fromPlace = convert.get(from);
+                Place toPlace = convert.get(to);
+                if(listGraph.getEdgeBetween(fromPlace, toPlace) != null){
+                    listGraph.connect(fromPlace, toPlace, name, weight);
+                    connectionLine = new Line(fromPlace.getCenterX(), fromPlace.getCenterY(), toPlace.getCenterX(), toPlace.getCenterY());
+                    outputArea.getChildren().add(connectionLine);
                 }
-                //Place place = new Place(name, x,y);
-                //rita ut text
-                //outputArea.getChildren().add(place);
             }
             in.close();
             file.close();
@@ -208,7 +230,7 @@ public class PathFinder extends Application {
             try{
                 FileWriter file = new FileWriter("europa.graph");
                 PrintWriter out = new PrintWriter(file);
-                out.println("file: europa.gif");
+                out.println(imageName);
                 for(Node node : outputArea.getChildren()){
                     if(node instanceof Place){
                         Place place = (Place)node;
@@ -285,9 +307,23 @@ public class PathFinder extends Application {
     class FindPathHandler implements EventHandler<ActionEvent>{
         @Override
         public void handle(ActionEvent event){
+            if(markedPlaces.size() < 2){
+                twoPlacesMustBeSelectedWarning();
+                return;
+            }
+
             StringBuilder contentText = new StringBuilder();
             List<Edge<Place>> linkedList = listGraph.getPath(markedPlaces.get(0), markedPlaces.get(1));
+            TextArea textArea = new TextArea();
+            textArea.setEditable(false);
             int total = 0;
+
+            if(linkedList == null){
+                alertError.setTitle("Error!");
+                alertError.setHeaderText("There is no path between " + markedPlaces.get(0) + " and " + markedPlaces.get(1));
+                alertError.showAndWait();
+                return;
+            }
 
             for (Edge<Place> placeEdge : linkedList) {
                 contentText.append(placeEdge.toStringEnglish()).append("\n");
@@ -296,11 +332,13 @@ public class PathFinder extends Application {
             }
 
             contentText.append("Total: ").append(total);
+            textArea.setText(contentText.toString());
 
             alertInformation.setTitle("Message");
             alertInformation.setHeaderText("The Path from " + markedPlaces.get(0).getName() + " to " + markedPlaces.get(1).getName());
-            alertInformation.setContentText(contentText.toString());
+            alertInformation.getDialogPane().setContent(textArea);
             alertInformation.showAndWait();
+
             clearMarkedPlaces(markedPlaces.get(0), markedPlaces.get(1));
         }
     }
@@ -361,7 +399,8 @@ public class PathFinder extends Application {
                 newPlace.setOnMouseClicked(new MarkClickHandler());
                 listGraph.add(newPlace);
                 outputArea.getChildren().add(newPlace);
-                graphicsContext.strokeText(newPlace.getName(), x + PLACE_NAME_X, y + PLACE_NAME_Y);
+                placeName = new Text(x - PLACE_NAME_X, y - PLACE_NAME_Y, newPlace.getName());
+                outputArea.getChildren().add(placeName);
             }
             outputArea.setOnMouseClicked(null);
             isChanged = true;
@@ -392,9 +431,8 @@ public class PathFinder extends Application {
                         alertWarning.showAndWait();
                     } else{
                         listGraph.connect(from, to, dialogNewConnection.getName(), Integer.parseInt(dialogNewConnection.getTime()));
-                        graphicsContext.setLineWidth(4);
-                        graphicsContext.strokeLine(from.getCenterX(), from.getCenterY(), to.getCenterX(), to.getCenterY());
-                        graphicsContext.setLineWidth(1);
+                        connectionLine = new Line(from.getCenterX(), from.getCenterY(), to.getCenterX(), to.getCenterY());
+                        outputArea.getChildren().add(connectionLine);
                         clearMarkedPlaces(to, from);
                         isChanged = true;
                     }

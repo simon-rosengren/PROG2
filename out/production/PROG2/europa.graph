@@ -1,6 +1,8 @@
-file: europa.gif
-Stockholm;454,0;228,7;Oslo;398,0;216,7;Köpenhamn;402,7;309,3;
-Stockholm;Köpenhamn;Airplane;1
-Stockholm;Oslo;Car;5
-Köpenhamn;Stockholm;Airplane;1
-Oslo;Stockholm;Car;5
+file:europa.gif
+Stockholm;456,0;228,0;Oslo;399,3;221,3;Köpenhamn;390,0;306,7;
+Köpenhamn;Oslo;Airplane;5
+Köpenhamn;Stockholm;Car;10
+Stockholm;Oslo;Train;1
+Stockholm;Köpenhamn;Car;10
+Oslo;Köpenhamn;Airplane;5
+Oslo;Stockholm;Train;1
