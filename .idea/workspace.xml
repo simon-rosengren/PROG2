@@ -6,24 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="cb466061-47ff-46c2-aa34-15be9bbba21a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DialogConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/DialogConnection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Edge.java" beforeDir="false" afterPath="$PROJECT_DIR$/Edge.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ListGraph.java" beforeDir="false" afterPath="$PROJECT_DIR$/ListGraph.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/PathFinder.java" beforeDir="false" afterPath="$PROJECT_DIR$/PathFinder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/capture.png" beforeDir="false" afterPath="$PROJECT_DIR$/capture.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/europa.graph" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ChangeConnectionHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ChangeConnectionHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ExitHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ExitHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ExitItemHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ExitItemHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$FindPathHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$FindPathHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$MarkClickHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$MarkClickHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewConnectionHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewConnectionHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewMapHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewMapHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewPlaceClickHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewPlaceClickHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewPlaceHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$NewPlaceHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$OpenHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$OpenHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$SaveHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$SaveHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$SaveImageHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$SaveImageHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ShowConnectionHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder$ShowConnectionHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/PathFinder.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/PathFinder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/PROG2/europa.graph" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/PROG2/europa.graph" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Place.java" beforeDir="false" afterPath="$PROJECT_DIR$/Place.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -163,7 +150,7 @@
       <workItem from="1652699595191" duration="375000" />
       <workItem from="1652701408977" duration="12259000" />
       <workItem from="1652713715688" duration="15000" />
-      <workItem from="1652963919147" duration="5809000" />
+      <workItem from="1652963919147" duration="7502000" />
     </task>
     <servers />
   </component>

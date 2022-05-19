@@ -1,3 +1,9 @@
+// PROG2 VT2022, Inlämningsuppgift, del 2
+// Grupp 017
+// Ida Amneryd idam7056
+// Simon Rosengren siro6690
+// Malin Andersson maan8354
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;

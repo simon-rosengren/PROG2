@@ -1,10 +1,16 @@
+// PROG2 VT2022, Inlämningsuppgift, del 2
+// Grupp 017
+// Ida Amneryd idam7056
+// Simon Rosengren siro6690
+// Malin Andersson maan8354
+
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 public class Place extends Circle {
     private static final double CIRCLE_RADIUS = 10;
     private String name;
-    private boolean isMarked = false;
+    private boolean isMarked;
 
     public Place (String name, double x, double y){
         super(x, y, CIRCLE_RADIUS, Color.BLUE);

@@ -30,17 +30,16 @@ import javafx.stage.WindowEvent;
 
 import javax.imageio.ImageIO;
 import java.io.*;
-import java.text.NumberFormat;
 import java.util.*;
 
 public class PathFinder extends Application {
     private static final int PLACE_NAME_X = 10;
     private static final int PLACE_NAME_Y = 12;
-    public static final int MENY_FILE_HEIGHT = 100;
-    public static final int MENY_FILE_WIDTH = 20;
+    private static final int MENY_FILE_HEIGHT = 100;
+    private static final int MENY_FILE_WIDTH = 20;
     private Stage primaryStage;
     private BorderPane root = new BorderPane();
-    private VBox vBoxFile = new VBox();
+    private VBox fileVBox = new VBox();
     private Pane outputArea = new Pane();
     private Text placeName;
     private Line connectionLine;
@@ -55,7 +54,7 @@ public class PathFinder extends Application {
     private ListGraph<Place> listGraph = new ListGraph<>();
     private String imageName = "file:europa.gif";
     private boolean isFirstMap = true;
-    private boolean isChanged = false;
+    private boolean isChanged;
     private Alert alertWarning = new Alert(Alert.AlertType.WARNING);
     private Alert alertConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
     private Alert alertInformation = new Alert(Alert.AlertType.INFORMATION);
@@ -72,7 +71,7 @@ public class PathFinder extends Application {
         alertConfirmation.setTitle("Warning!");
         alertWarning.setTitle("Warning!");
 
-        Scene scene = new Scene(new VBox(vBoxFile, root), 604, 100);
+        Scene scene = new Scene(new VBox(fileVBox, root), 604, 100);
         primaryStage.setScene(scene);
         primaryStage.show();
         primaryStage.setOnCloseRequest(new ExitHandler());
@@ -84,7 +83,7 @@ public class PathFinder extends Application {
         MenuBar menu = new MenuBar();
         Menu menuFile = new Menu("File");
 
-        vBoxFile.getChildren().add(menu);
+        fileVBox.getChildren().add(menu);
         menu.getMenus().add(menuFile);
 
         MenuItem menuNewMap = new MenuItem("New Map");
