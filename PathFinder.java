@@ -35,16 +35,9 @@ import java.util.*;
 public class PathFinder extends Application {
     private static final int PLACE_NAME_X = 10;
     private static final int PLACE_NAME_Y = 12;
-    private static final int MENY_FILE_HEIGHT = 100;
-    private static final int MENY_FILE_WIDTH = 20;
-    private Stage primaryStage;
     private final BorderPane root = new BorderPane();
     private final VBox fileVBox = new VBox();
     private final Pane outputArea = new Pane();
-    private Text placeName;
-    private Line connectionLine;
-    private Image image;
-    private ImageView imageView;
     private final Button btnFindPath = new Button("Find Path");
     private final Button btnShowConnection = new Button("Show Connection");
     private final Button btnNewPlace = new Button("New Place");
@@ -52,13 +45,15 @@ public class PathFinder extends Application {
     private final Button btnChangeConnection = new Button("Change Connection");
     private final ArrayList<Place> markedPlaces = new ArrayList<>();
     private final ListGraph<Place> listGraph = new ListGraph<>();
-    private String imageName = "file:europa.gif";
-    private boolean isFirstMap = true;
-    private boolean isChanged;
     private final Alert alertWarning = new Alert(Alert.AlertType.WARNING);
     private final Alert alertConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
     private final Alert alertInformation = new Alert(Alert.AlertType.INFORMATION);
     private final Alert alertError = new Alert(Alert.AlertType.ERROR);
+    private Stage primaryStage;
+    private ImageView imageView;
+    private String imageName = "file:europa.gif";
+    private boolean isFirstMap = true;
+    private boolean isChanged;
 
     @Override
     public void start (Stage primaryStage){
@@ -74,7 +69,9 @@ public class PathFinder extends Application {
         alertInformation.setTitle("Message");
         alertError.setTitle("Error!");
 
-        Scene scene = new Scene(new VBox(fileVBox, root), 604, 100);
+        Scene scene = new Scene(new VBox(fileVBox, root));
+        primaryStage.sizeToScene();
+        primaryStage.centerOnScreen();
         primaryStage.setScene(scene);
         primaryStage.show();
         primaryStage.setOnCloseRequest(new ExitHandler());
@@ -143,8 +140,16 @@ public class PathFinder extends Application {
     class NewMapHandler implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent event) {
-            setUpNewMap();
-            if (isChanged){
+            if(isFirstMap){
+                markedPlaces.clear();
+                Image image = new Image(imageName);
+                imageView = new ImageView(image);
+                outputArea.getChildren().add(imageView);
+                primaryStage.sizeToScene();
+                primaryStage.centerOnScreen();
+                outputArea.setPrefSize(image.getWidth(), image.getHeight());
+                isFirstMap = false;
+            } else if (isChanged){
                 alertConfirmation.setHeaderText("Unsaved changes, continue anyway?");
                 Optional<ButtonType> result = alertConfirmation.showAndWait();
                 if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -161,21 +166,9 @@ public class PathFinder extends Application {
         }
     }
 
-    public void setUpNewMap(){
-        if(isFirstMap){
-            image = new Image(imageName);
-            imageView = new ImageView(image);
-            outputArea.getChildren().add(imageView);
-            primaryStage.setHeight(image.getHeight() + MENY_FILE_HEIGHT);
-            primaryStage.setWidth(image.getWidth() + MENY_FILE_WIDTH);
-            outputArea.setPrefSize(image.getWidth(), image.getHeight());
-            isFirstMap = false;
-        }
-    }
-
     public void clearMap(){
-        outputArea.getChildren().removeAll(listGraph.getNodes());
-        outputArea.getChildren().removeAll(placeName, connectionLine);
+        markedPlaces.clear();
+        outputArea.getChildren().retainAll(imageView);
         listGraph.clear();
     }
 
@@ -183,14 +176,16 @@ public class PathFinder extends Application {
         @Override
         public void handle(ActionEvent event){
             if (isChanged){
-                alertConfirmation.setContentText("Unsaved changes, open anyway?");
+                alertConfirmation.setHeaderText("Unsaved changes, continue anyway?");
                 Optional<ButtonType> result = alertConfirmation.showAndWait();
                 if (result.isPresent() && result.get().equals(ButtonType.OK)){
+                    markedPlaces.clear();
                     clearMap();
                     open();
                 }
             } else{
-                setUpNewMap();
+                markedPlaces.clear();
+                clearMap();
                 open();
             }
         }
@@ -203,13 +198,17 @@ public class PathFinder extends Application {
             BufferedReader in = new BufferedReader(file);
             String line;
             imageName = in.readLine();
+            imageView.setImage(new Image(imageName));
+            primaryStage.sizeToScene();
+            primaryStage.centerOnScreen();
             String nodes = in.readLine();
             String[] nodesArray = nodes.split(";");
             for(int i = 0; i < nodesArray.length; i += 3){
                 Place place = new Place(nodesArray[i], Double.parseDouble(nodesArray[i + 1]), Double.parseDouble(nodesArray[i + 2]));
+                place.setOnMouseClicked(new MarkClickHandler());
                 listGraph.add(place);
                 placesTemp.put(place.getName(), place);
-                placeName = new Text(Double.parseDouble(nodesArray[i + 1]) - PLACE_NAME_X, Double.parseDouble(nodesArray[i + 2]) - PLACE_NAME_Y, place.getName());
+                Text placeName = new Text(Double.parseDouble(nodesArray[i + 1]) - PLACE_NAME_X, Double.parseDouble(nodesArray[i + 2]) - PLACE_NAME_Y, place.getName());
                 outputArea.getChildren().addAll(place, placeName);
             }
             while ((line = in.readLine()) != null){
@@ -220,10 +219,11 @@ public class PathFinder extends Application {
                 int weight = Integer.parseInt(connections[3]);
                 Place fromPlace = placesTemp.get(from);
                 Place toPlace = placesTemp.get(to);
-                if(listGraph.getEdgeBetween(fromPlace, toPlace) != null){
+                if(listGraph.getEdgeBetween(fromPlace, toPlace) == null){
                     listGraph.connect(fromPlace, toPlace, name, weight);
-                    connectionLine = new Line(fromPlace.getCenterX(), fromPlace.getCenterY(), toPlace.getCenterX(), toPlace.getCenterY());
+                    Line connectionLine = new Line(fromPlace.getCenterX(), fromPlace.getCenterY(), toPlace.getCenterX(), toPlace.getCenterY());
                     outputArea.getChildren().add(connectionLine);
+                    connectionLine.setDisable(true);
                 }
             }
             in.close();
@@ -351,7 +351,6 @@ public class PathFinder extends Application {
             alertInformation.getDialogPane().setContent(textArea);
             alertInformation.showAndWait();
 
-            clearMarkedPlaces(markedPlaces.get(0), markedPlaces.get(1));
         }
     }
 
@@ -373,7 +372,6 @@ public class PathFinder extends Application {
 
                 dialogShowConnection.showAndWait();
 
-                clearMarkedPlaces(markedPlaces.get(0), markedPlaces.get(1));
             }
         }
     }
@@ -402,16 +400,15 @@ public class PathFinder extends Application {
 
             outputArea.setCursor(Cursor.DEFAULT);
 
-            if(name.isEmpty() || name.matches(".*[0-9].*")){
-                alertWarning.setHeaderText("Name cannot be empty and cannot contain numbers!");
+            if(name.isEmpty()){
+                alertWarning.setHeaderText("Name cannot be empty!");
                 alertWarning.showAndWait();
             } else{
                 Place newPlace = new Place(name, x, y);
                 newPlace.setOnMouseClicked(new MarkClickHandler());
                 listGraph.add(newPlace);
-                outputArea.getChildren().add(newPlace);
-                placeName = new Text(x - PLACE_NAME_X, y - PLACE_NAME_Y, newPlace.getName());
-                outputArea.getChildren().add(placeName);
+                Text placeName = new Text(x - PLACE_NAME_X, y - PLACE_NAME_Y, newPlace.getName());
+                outputArea.getChildren().addAll(newPlace, placeName);
             }
             outputArea.setOnMouseClicked(null);
             isChanged = true;
@@ -438,14 +435,14 @@ public class PathFinder extends Application {
                     String name = dialogNewConnection.getName();
                     String time = dialogNewConnection.getTime();
 
-                    if(name.isEmpty() || time.isEmpty() || name.matches(".*[0-9].*") || !time.matches(".*[0-9].*")){
+                    if(name.isEmpty() || time.isEmpty()){
                         alertWarning.setHeaderText("Name and Time cannot be empty, Name cannot contain numbers\nand Time cannot contain letters!");
                         alertWarning.showAndWait();
                     } else{
                         listGraph.connect(from, to, dialogNewConnection.getName(), Integer.parseInt(dialogNewConnection.getTime()));
-                        connectionLine = new Line(from.getCenterX(), from.getCenterY(), to.getCenterX(), to.getCenterY());
+                        Line connectionLine = new Line(from.getCenterX(), from.getCenterY(), to.getCenterX(), to.getCenterY());
+                        connectionLine.setDisable(true);
                         outputArea.getChildren().add(connectionLine);
-                        clearMarkedPlaces(to, from);
                         isChanged = true;
                     }
                 }
@@ -475,24 +472,17 @@ public class PathFinder extends Application {
                 if(result.isPresent() && result.get() == ButtonType.OK){
                     String time = dialogChangeConnection.getTime();
 
-                    if(time.isEmpty() || !time.matches(".*[0-9].*")){
+                    if(time.isEmpty()){
                         alertWarning.setHeaderText("Time cannot be empty or contain letters!");
                         alertWarning.showAndWait();
                     } else{
                         int newWeight = Integer.parseInt(dialogChangeConnection.getTime());
                         listGraph.setConnectionWeight(from, to, newWeight);
-                        clearMarkedPlaces(to, from);
                         isChanged = true;
                     }
                 }
             }
         }
-    }
-
-    public void clearMarkedPlaces(Place to, Place from){
-        markedPlaces.clear();
-        to.unmarkPlace();
-        from.unmarkPlace();
     }
 
     public void twoPlacesMustBeSelectedWarning(){

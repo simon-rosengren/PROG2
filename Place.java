@@ -9,7 +9,7 @@ import javafx.scene.shape.Circle;
 
 public class Place extends Circle {
     private static final double CIRCLE_RADIUS = 10;
-    private String name;
+    private final String name;
     private boolean isMarked;
 
     public Place (String name, double x, double y){

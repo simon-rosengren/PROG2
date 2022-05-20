@@ -37,7 +37,7 @@ public class Edge<T> implements Serializable {
     }
 
     public String toStringEnglish(){
-        return "to " + destination + " with " + name + " takes " + weight;
+        return "to " + destination + " by " + name + " takes " + weight;
     }
     @Override
     public String toString(){
