@@ -15,6 +15,7 @@ public class Place extends Circle {
     public Place (String name, double x, double y){
         super(x, y, CIRCLE_RADIUS, Color.BLUE);
         this.name = name;
+        setId(name);
     }
 
     public String getName(){

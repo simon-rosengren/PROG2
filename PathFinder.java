@@ -38,34 +38,34 @@ public class PathFinder extends Application {
     private static final int MENY_FILE_HEIGHT = 100;
     private static final int MENY_FILE_WIDTH = 20;
     private Stage primaryStage;
-    private BorderPane root = new BorderPane();
-    private VBox fileVBox = new VBox();
-    private Pane outputArea = new Pane();
+    private final BorderPane root = new BorderPane();
+    private final VBox fileVBox = new VBox();
+    private final Pane outputArea = new Pane();
     private Text placeName;
     private Line connectionLine;
     private Image image;
     private ImageView imageView;
-    private Button btnFindPath = new Button("Find Path");
-    private Button btnShowConnection = new Button("Show Connection");
-    private Button btnNewPlace = new Button("New Place");
-    private Button btnNewConnection = new Button("New Connection");
-    private Button btnChangeConnection = new Button("Change Connection");
-    private ArrayList<Place> markedPlaces = new ArrayList<>();
-    private ListGraph<Place> listGraph = new ListGraph<>();
+    private final Button btnFindPath = new Button("Find Path");
+    private final Button btnShowConnection = new Button("Show Connection");
+    private final Button btnNewPlace = new Button("New Place");
+    private final Button btnNewConnection = new Button("New Connection");
+    private final Button btnChangeConnection = new Button("Change Connection");
+    private final ArrayList<Place> markedPlaces = new ArrayList<>();
+    private final ListGraph<Place> listGraph = new ListGraph<>();
     private String imageName = "file:europa.gif";
     private boolean isFirstMap = true;
     private boolean isChanged;
-    private Alert alertWarning = new Alert(Alert.AlertType.WARNING);
-    private Alert alertConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
-    private Alert alertInformation = new Alert(Alert.AlertType.INFORMATION);
-    private Alert alertError = new Alert(Alert.AlertType.ERROR);
+    private final Alert alertWarning = new Alert(Alert.AlertType.WARNING);
+    private final Alert alertConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
+    private final Alert alertInformation = new Alert(Alert.AlertType.INFORMATION);
+    private final Alert alertError = new Alert(Alert.AlertType.ERROR);
 
     @Override
     public void start (Stage primaryStage){
         this.primaryStage = primaryStage;
         primaryStage.setTitle("PathFinder");
 
-        setId();
+        setMenu();
 
         alertError.setTitle("Error!");
         alertConfirmation.setTitle("Warning!");
@@ -77,46 +77,60 @@ public class PathFinder extends Application {
         primaryStage.setOnCloseRequest(new ExitHandler());
     }
 
-    public void setId(){
+    public void setMenu(){
+        outputArea.setId("outputArea");
         root.setCenter(outputArea);
 
-        MenuBar menu = new MenuBar();
-        Menu menuFile = new Menu("File");
+        MenuBar menuBar = new MenuBar();
+        menuBar.setId("menu");
 
-        fileVBox.getChildren().add(menu);
-        menu.getMenus().add(menuFile);
+        Menu menu = new Menu("File");
+        menu.setId("menuFile");
+
+        fileVBox.getChildren().add(menuBar);
+        menuBar.getMenus().add(menu);
 
         MenuItem menuNewMap = new MenuItem("New Map");
+        menuNewMap.setId("menuNewMap");
         menuNewMap.setOnAction(new NewMapHandler());
 
         MenuItem menuOpenFile = new MenuItem("Open");
+        menuOpenFile.setId("menuOpenFile");
         menuOpenFile.setOnAction(new OpenHandler());
 
         MenuItem menuSaveFile = new MenuItem("Save");
+        menuSaveFile.setId("menuSaveFile");
         menuSaveFile.setOnAction(new SaveHandler());
 
         MenuItem menuSaveImage = new MenuItem("Save Image");
+        menuSaveImage.setId("menuSaveImage");
         menuSaveImage.setOnAction(new SaveImageHandler());
 
         MenuItem menuExit = new MenuItem("Exit");
+        menuExit.setId("menuExit");
         menuExit.setOnAction(new ExitItemHandler());
 
-        menuFile.getItems().addAll(menuNewMap, menuOpenFile, menuSaveFile, menuSaveImage, menuExit);
+        menu.getItems().addAll(menuNewMap, menuOpenFile, menuSaveFile, menuSaveImage, menuExit);
 
         btnFindPath.setDisable(true);
         btnFindPath.setOnAction(new FindPathHandler());
+        btnFindPath.setId("btnFindPath");
 
         btnShowConnection.setDisable(true);
         btnShowConnection.setOnAction(new ShowConnectionHandler());
+        btnShowConnection.setId("btnShowConnection");
 
         btnNewPlace.setDisable(true);
         btnNewPlace.setOnAction(new NewPlaceHandler());
-
-        btnNewConnection.setDisable(true);
-        btnNewConnection.setOnAction(new NewConnectionHandler());
+        btnNewPlace.setId("btnNewPlace");
 
         btnChangeConnection.setDisable(true);
         btnChangeConnection.setOnAction(new ChangeConnectionHandler());
+        btnChangeConnection.setId("btnChangeConnection");
+
+        btnNewConnection.setDisable(true);
+        btnNewConnection.setOnAction(new NewConnectionHandler());
+        btnNewConnection.setId("btnNewConnection");
 
         FlowPane top = new FlowPane();
         top.setAlignment(Pos.CENTER);
@@ -234,9 +248,9 @@ public class PathFinder extends Application {
                     if(node instanceof Place){
                         Place place = (Place)node;
                         out.print(place + ";");
-                        out.format("%.1f", place.getCenterX());
+                        out.print(place.getCenterX());
                         out.print(";");
-                        out.format("%.1f", place.getCenterY());
+                        out.print(place.getCenterY());
                         out.print(";");
                     }
                 }
@@ -388,7 +402,6 @@ public class PathFinder extends Application {
             String name = textInputDialog.getEditor().getText();
 
             outputArea.setCursor(Cursor.DEFAULT);
-            btnNewPlace.setDisable(false);
 
             if(name.isEmpty() || name.matches(".*[0-9].*")){
                 alertWarning.setHeaderText("Name cannot be empty and cannot contain numbers!");
@@ -403,6 +416,7 @@ public class PathFinder extends Application {
             }
             outputArea.setOnMouseClicked(null);
             isChanged = true;
+            btnNewPlace.setDisable(false);
         }
     }
 
