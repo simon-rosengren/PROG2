@@ -65,11 +65,14 @@ public class PathFinder extends Application {
         this.primaryStage = primaryStage;
         primaryStage.setTitle("PathFinder");
 
+        outputArea.setId("outputArea");
+        root.setCenter(outputArea);
         setMenu();
 
-        alertError.setTitle("Error!");
-        alertConfirmation.setTitle("Warning!");
         alertWarning.setTitle("Warning!");
+        alertConfirmation.setTitle("Warning!");
+        alertInformation.setTitle("Message");
+        alertError.setTitle("Error!");
 
         Scene scene = new Scene(new VBox(fileVBox, root), 604, 100);
         primaryStage.setScene(scene);
@@ -78,9 +81,6 @@ public class PathFinder extends Application {
     }
 
     public void setMenu(){
-        outputArea.setId("outputArea");
-        root.setCenter(outputArea);
-
         MenuBar menuBar = new MenuBar();
         menuBar.setId("menu");
 
@@ -198,7 +198,7 @@ public class PathFinder extends Application {
 
     private void open(){
         try{
-            Map<String, Place> convert = new HashMap<>();
+            Map<String, Place> placesTemp = new HashMap<>();
             FileReader file = new FileReader("europa.graph");
             BufferedReader in = new BufferedReader(file);
             String line;
@@ -208,7 +208,7 @@ public class PathFinder extends Application {
             for(int i = 0; i < nodesArray.length; i += 3){
                 Place place = new Place(nodesArray[i], Double.parseDouble(nodesArray[i + 1]), Double.parseDouble(nodesArray[i + 2]));
                 listGraph.add(place);
-                convert.put(place.getName(), place);
+                placesTemp.put(place.getName(), place);
                 placeName = new Text(Double.parseDouble(nodesArray[i + 1]) - PLACE_NAME_X, Double.parseDouble(nodesArray[i + 2]) - PLACE_NAME_Y, place.getName());
                 outputArea.getChildren().addAll(place, placeName);
             }
@@ -218,8 +218,8 @@ public class PathFinder extends Application {
                 String to = connections[1];
                 String name = connections[2];
                 int weight = Integer.parseInt(connections[3]);
-                Place fromPlace = convert.get(from);
-                Place toPlace = convert.get(to);
+                Place fromPlace = placesTemp.get(from);
+                Place toPlace = placesTemp.get(to);
                 if(listGraph.getEdgeBetween(fromPlace, toPlace) != null){
                     listGraph.connect(fromPlace, toPlace, name, weight);
                     connectionLine = new Line(fromPlace.getCenterX(), fromPlace.getCenterY(), toPlace.getCenterX(), toPlace.getCenterY());
@@ -229,7 +229,7 @@ public class PathFinder extends Application {
             in.close();
             file.close();
         }catch(FileNotFoundException exception){
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Kan inte öppna europa.graph!");
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Cannot open file europa.graph!");
             alert.showAndWait();
         }catch(IOException exception){
             Alert alert = new Alert(Alert.AlertType.ERROR, "IO_fel: " + exception.getMessage());
@@ -347,7 +347,6 @@ public class PathFinder extends Application {
             contentText.append("Total: ").append(total);
             textArea.setText(contentText.toString());
 
-            alertInformation.setTitle("Message");
             alertInformation.setHeaderText("The Path from " + markedPlaces.get(0).getName() + " to " + markedPlaces.get(1).getName());
             alertInformation.getDialogPane().setContent(textArea);
             alertInformation.showAndWait();
